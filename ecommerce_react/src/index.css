@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Asap+Condensed:ital,wght@0,400;0,500;1,200&family=Cabin&family=Fira+Sans:wght@200;300;400;500&family=Josefin+Sans:wght@200;400;500;600&family=Libre+Baskerville&family=Play&family=Poppins:wght@100;200;400;500&display=swap");
+* {
+  background-color: #d9d9d9;
+}
+.container {
+  padding-left: 70px;
+  padding-right: 70px;
+}
