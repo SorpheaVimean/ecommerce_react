@@ -41,7 +41,7 @@ const Headers = () => {
           placeholder="input search text"
           allowClear
           onSearch={onSearch}
-          className="w-40 xs:w-96 hidden md:visible"
+          className="w-40 xs:w-96 "
         />
         <Space>
           <Link to={"login"}>

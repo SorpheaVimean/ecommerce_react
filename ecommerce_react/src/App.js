@@ -10,9 +10,8 @@ import ContactPage from "./pages/contact/ContactPage";
 
 //Route Login and Logout Layout
 import LoginLayout from "../src/components/layout/LoginAndSigninLayout";
-import LoginnPage from "./pages/login/LoginnPage";
+import LoginPage from "./pages/login/LoginPage";
 import SignUpPage from "./pages/signUp/SignUpPage";
-
 
 function App() {
   return (
@@ -25,10 +24,12 @@ function App() {
           <Route path="support" element={<SupportPage />} />
           <Route path="contact" element={<ContactPage />} />
         </Route>
-        <Route  path="/" element={<LoginLayout />}>
-          <Route path="login" element={<LoginnPage />} />  
-          <Route path="signUp" element={<SignUpPage />} />  
-        </Route>
+        <Route path="/" element={<LoginLayout />}>
+         
+          
+        </Route> 
+        <Route path="login" element={<LoginPage />} />
+        <Route path="signUp" element={<SignUpPage />} />
       </Routes>
     </BrowserRouter>
   );

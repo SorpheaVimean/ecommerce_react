@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Drawer, Button, Menu } from "antd";
+import { Drawer,  Menu } from "antd";
 
 import {
   HomeOutlined,
@@ -81,18 +81,18 @@ const Navbar = () => {
   };
 
   return (
-    <div>
+    <div >
       <Menu
         onClick={onClick}
         selectedKeys={[current]}
         mode="horizontal"
         items={items}
-        className="justify-center items-center font-bold bg-transparent  hidden lg:flex border-b-0 "
+        className="justify-center items-center font-bold bg-transparent sticky hidden lg:flex border-b-0 "
       />
 
       {/* Show the "Open" button only on screens smaller than medium */}
       <h1
-        className="lg:hidden  md:block flex float-end mr-[20px] xs:mr-[30px] bg-transparent"
+        className="lg:hidden  md:block flex float-end mr-[20px] xs:mr-[30px] "
         onClick={showDrawer}
       >
         <RiMenu5Line className="text-4xl" />
@@ -104,6 +104,7 @@ const Navbar = () => {
           selectedKeys={[current]}
           mode="vertical"
           items={items}
+          
         />
       </Drawer>
       <logo />

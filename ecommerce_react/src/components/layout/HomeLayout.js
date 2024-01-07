@@ -1,7 +1,8 @@
 import React from "react";
 import Headers from "../header/Headers";
 import Navbar from "../navbar/Navbar";
-import {  Outlet } from "react-router-dom";
+import Footer from "../footer/Footer";
+import { Outlet } from "react-router-dom";
 import { Layout, Menu, theme, FloatButton } from "antd";
 import {
   UserOutlined,
@@ -9,7 +10,7 @@ import {
   CustomerServiceOutlined,
 } from "@ant-design/icons";
 import { FiSend } from "react-icons/fi";
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 
 const HomeLayout = () => {
   // Check if theme.useToken() is truthy before accessing its properties
@@ -39,49 +40,31 @@ const HomeLayout = () => {
   return (
     <div>
       <Layout>
-        <Header className="p-0">
+        <Header className="p-0 ">
           <Headers />
         </Header>
-        {/* <Header
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <div className="demo-logo" />
-          <Menu
-            mode="horizontal"
-            defaultSelectedKeys={["1"]}
-            style={{
-              flex: 1,
-              minWidth: 0,
-            }}
-          >
-            {itemsNavbar.map((item) => (
-              <Menu.Item key={item.key} icon={item.icon}>
-                <Link to={item.to}>{item.label}</Link>
-              </Menu.Item>
-            ))}
-          </Menu>
-        </Header> */}
-        <Navbar />
+
+        <Navbar className="fixed" />
         <Content>
           <Outlet />
         </Content>
-        {/* <Footer>Footer</Footer> */}
+        <Footer />
       </Layout>
+
       <FloatButton.Group
         trigger="click"
         type="primary"
-        className=" mr-[20px] xs:mr-[30px]"
+        className=" mr-[20px] xs:mr-[30px] "
         icon={<FiSend />}
       >
-        
         <FloatButton icon={<CommentOutlined />} />
         <FloatButton icon={<CustomerServiceOutlined />} />
-        <FloatButton  />
+        <FloatButton />
       </FloatButton.Group>
-      <FloatButton.BackTop />
+
+      <FloatButton.BackTop className="mr-20" />
+      
+       
       
     </div>
   );

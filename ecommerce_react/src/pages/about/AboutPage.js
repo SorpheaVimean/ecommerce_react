@@ -1,12 +1,50 @@
-import React from 'react'
-
+import React from "react";
+import logo from "./logo.png";
+import logos from "./background.png";
 const AboutPage = () => {
-    return (
-        <div>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#d2e3c8" fill-opacity="1" d="M0,160L80,181.3C160,203,320,245,480,256C640,267,800,245,960,224C1120,203,1280,181,1360,170.7L1440,160L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path></svg>
-          <h1>Hello from about</h1>
+  return (
+    <div>
+    
+      <h1
+        className="text-8xl font-extrabold bg-cover bg-center relative h-40 flex justify-center items-center "
+        style={{ backgroundImage: `url(${logos})` }}
+      >
+        ABOUT US
+      </h1>
+      <div className="mx-[20px] xs:mx-[30px] xl:mx-[70px] flex justify-center mt-20">
+        <div className="flex justify-between items-center flex-col lg:flex-row gap-10 mt-5   lg:mx-60">
+          <div>
+            <img src={logo} alt="logo" className="object-contain" />
+          </div>
+          <div className="">
+            <p className="text-6xl mb-5">
+              {" "}
+              Welcome to our e-commerce haven, 
+            </p>
+            <p className="text-justify text-lg  ">
+              {" "}
+              where cutting-edge technology
+              meets your computing needs seamlessly.At [Your E-commerce Store Name], we take pride in offering a
+              diverse range of high-performance PCs that cater to both casual
+              users and tech enthusiasts alike. Our carefully curated selection
+              includes gaming PCs, workstations, and sleek laptops, each crafted
+              with precision and powered by the latest innovations. Whether
+              you're seeking a powerhouse for gaming adventures, a reliable
+              workhorse for professional tasks, or a portable companion for
+              on-the-go productivity, we have the perfect PC for you. Explore
+              our extensive catalog, where quality meets affordability, and
+              experience the convenience of upgrading your computing lifestyle
+              with just a few clicks. At [Your E-commerce Store Name], we don't
+              just sell PCs; we deliver an immersive and tailored technology
+              experience right to your doorstep. Upgrade your digital journey
+              with us!
+            </p>
+          </div>
         </div>
-        )
-}
+      </div>
+      
+    </div>
+  );
+};
 
-export default AboutPage
+export default AboutPage;

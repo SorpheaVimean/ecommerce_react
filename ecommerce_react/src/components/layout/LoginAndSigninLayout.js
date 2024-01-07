@@ -5,9 +5,9 @@ import logo from "../../img/logo.png";
 const LoginAndSigninLayout = () => {
   return (
     <div>
-      <Header className="flex items-center">
+      <Header className="flex items-center h-24">
         <Link to={"/"}>
-          <img alt="logo" src={logo} className="w-9 lg:w-11 cursor-pointer " />
+          <img alt="logo" src={logo} className="w-16 lg:w-20 cursor-pointer " />
         </Link>
       </Header>
       <Outlet />
