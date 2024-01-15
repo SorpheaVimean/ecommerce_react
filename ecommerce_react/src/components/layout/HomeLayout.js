@@ -44,7 +44,7 @@ const HomeLayout = () => {
           <Headers />
         </Header>
 
-        <Navbar className="fixed" />
+        <Navbar />
         <Content>
           <Outlet />
         </Content>

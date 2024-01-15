@@ -1,4 +1,5 @@
 @tailwind base;
+
 @tailwind components;
 @tailwind utilities;
 @import url("https://fonts.googleapis.com/css2?family=Asap+Condensed:ital,wght@0,400;0,500;1,200&family=Cabin&family=Fira+Sans:wght@200;300;400;500&family=Josefin+Sans:wght@200;400;500;600&family=Libre+Baskerville&family=Play&family=Poppins:wght@100;200;400;500&display=swap");
@@ -7,3 +8,29 @@
   margin-left: 70px;
   margin-right: 70px;
 } */
+
+@layer components {
+  
+
+ 
+    /* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #6c47f3;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #02a65a;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #01cc7a;
+}
+  }

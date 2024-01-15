@@ -17,6 +17,8 @@ module.exports = {
         Footer: "#86A789",
         Background: "#D9D9D9",
         Backproducts: "#D2E3C8",
+        BgBtn: "#02a65a",
+        BgBtnHover: "#01cc7a",
       },
     },
   },

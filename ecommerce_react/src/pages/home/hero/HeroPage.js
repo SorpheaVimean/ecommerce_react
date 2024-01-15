@@ -12,7 +12,7 @@ const HeroPage = () => {
   };
   return (
     <div>
-      <Carousel autoplay autoplaySpeed={5000} dotPosition="right">
+      <Carousel autoplay autoplaySpeed={5000} dotPosition="top">
         <div>
           <img
             src={banner1}

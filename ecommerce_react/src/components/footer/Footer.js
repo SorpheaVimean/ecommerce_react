@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../../img/logo.png";
-import { Col, Divider, Row } from "antd";
+import { Col, Row } from "antd";
 const Footer = () => {
   return (
     <div>
@@ -224,7 +224,7 @@ const Footer = () => {
         </Row>
       </div>
       <p className="text-center h-7 bg-Footer text-white border-t-2 border-slate-300">
-        All right rerserve
+      © copyright @ 2024 by VSHOP | all rights reserved!
       </p>
     </div>
   );

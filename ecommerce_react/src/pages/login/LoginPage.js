@@ -93,7 +93,7 @@ const LoginPage = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                className="login-form-button bg-Backproducts text-black w-80 duration-300 hover:scale-110"
+                className="login-form-button bg-BgBtn  text-black w-80 duration-300 hover:scale-110"
               >
                 Log in
               </Button>
