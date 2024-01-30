@@ -10,6 +10,12 @@ import dell from "../home/img/dell.png";
 import razer from "../home/img/razer.png";
 import msi from "../home/img/msi.png";
 
+// Icon from react icon
+import { IoIosLaptop } from "react-icons/io";
+import { IoHardwareChipOutline } from "react-icons/io5";
+import { FaRegKeyboard } from "react-icons/fa";
+import { AiOutlineUsb } from "react-icons/ai";
+
 import { Splide, SplideSlide, SplideTrack } from "@splidejs/react-splide";
 import "@splidejs/splide/dist/css/splide.min.css";
 
@@ -47,7 +53,31 @@ const HomePage = () => {
 
   return (
     <div>
-      <HeroPage />
+      <HeroPage className="z-0" />
+      <div className=" flex justify-center mt-[-20px] md:mt-[-50px] z-10 items-center ">
+        <div className="bg-white rounded-xl z-10  text-white py-5 flex justify-center items-center gap-4 md:gap-16 lg:gap-24 px-10 cursor-pointer">
+          <div className=" flex flex-col justify-center items-center text-BgBtn hover:text-BgBtnHover  hover:scale-105 duration-300 ease-in-out ">
+             <IoIosLaptop  className="text-2xl  md:text-5xl  lg:text-7xl"/>
+             <p className="text-xs">LAPTOP</p>
+             
+          </div>
+             <div className=" flex flex-col justify-center items-center text-BgBtn hover:text-BgBtnHover hover:scale-105 duration-300 ease-in-out">
+             <IoHardwareChipOutline className="text-2xl md:text-5xl lg:text-7xl"/>
+             <p className="text-xs">PC HARDWARE</p>
+             
+             </div>
+             <div className=" flex flex-col justify-center items-center text-BgBtn hover:text-BgBtnHover hover:scale-105 duration-300 ease-in-out">
+             <FaRegKeyboard className="text-2xl md:text-5xl lg:text-7xl"/>
+             <p className="text-xs">PERIPHARALS</p>
+             
+             </div>
+       <div className=" flex flex-col justify-center items-center text-BgBtn hover:text-BgBtnHover hover:scale-105 duration-300 ease-in-out">
+       <AiOutlineUsb className="text-2xl md:text-5xl lg:text-7xl"/>
+       <p className="text-xs">ACCESSORIES</p>
+       
+       </div>
+        </div>
+      </div>
 
       <div className="  mx-[20px] xs:mx-[30px] xl:mx-[70px]">
         {/* New Collection */}

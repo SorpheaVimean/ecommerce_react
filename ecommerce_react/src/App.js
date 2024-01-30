@@ -10,16 +10,21 @@ import ContactPage from "./pages/contact/ContactPage";
 import QuickView from "./pages/quick_view/QuickViewPage";
 import CartPage from "./pages/shopping_cart/CartPage";
 
+// Admin Pages
+
+import DashBoard from "./components/admin/dashboard/DashBoard";
 
 //Route Login and Logout Layout
 import LoginLayout from "../src/components/layout/LoginAndSigninLayout";
 import LoginPage from "./pages/login/LoginPage";
 import SignUpPage from "./pages/signUp/SignUpPage";
 import ErrorPage from "./components/error/ErrorPage";
+import AdminLayout from "./components/layout/AdminLayout";
 
 function App() {
   return (
     <BrowserRouter>
+      {/* Customer Layout */}
       <Routes>
         <Route path="/" element={<HomeLayout />}>
           <Route path="" element={<HomePage />} />
@@ -29,15 +34,16 @@ function App() {
           <Route path="contact" element={<ContactPage />} />
           <Route path="quickView" element={<QuickView />} />
           <Route path="cart" element={<CartPage />} />
-         
-
         </Route>
-        <Route path="*" element={<ErrorPage/>} />
+        {/* Admin Layout */}
+        <Route path="/" element={<AdminLayout />}>
+          <Route path="DashBoard" element={<DashBoard />} />
+        </Route>
+
+        <Route path="*" element={<ErrorPage />} />
         <Route path="/" element={<LoginLayout />}>
-         
-          
-        </Route> 
-        <Route path="login" element={<LoginPage />} />
+        </Route>
+          <Route path="login" element={<LoginPage />} />
         <Route path="signUp" element={<SignUpPage />} />
       </Routes>
     </BrowserRouter>
