@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdOutlineDashboard } from "react-icons/md";
 import {
   MenuFoldOutlined,
@@ -8,11 +8,25 @@ import {
   VideoCameraOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Button, theme, Dropdown, Avatar } from "antd";
+import {
+  Layout,
+  Menu,
+  Button,
+  theme,
+  Dropdown,
+  Avatar,
+  Form,
+  Input,
+  Space,
+  Modal,
+} from "antd";
 import { Outlet, useNavigate } from "react-router-dom";
+import { configImage, getUser, isLogin, logout } from "../../share/help";
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout = () => {
+  const user = getUser();
+  const [form] = Form.useForm();
   const [collapsed, setCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {
@@ -25,24 +39,46 @@ const AdminLayout = () => {
   };
   //Logout
   const onLogOut = () => {
-    localStorage.setItem("isLogin", null);
-    window.location.href = "/LoginPage";
+    logout();
+    console.log(isLogin());
   };
+
   const showModal = () => {
     setIsModalOpen(true);
   };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const onUpdate = () => {};
+
+  useEffect(() => {
+    if (!isLogin()) {
+      // mean not login
+      window.location.href = "/login";
+    }
+  }, [isLogin]);
+
+  // if user is not logged yet to show null
+  if (!isLogin()) {
+    return null;
+  }
+
   // Siderbar menu
   const sidebar = [
     {
       key: "1",
       icon: <MdOutlineDashboard />,
       label: "DashBoard",
-      onClick: () => onLinkPage("DashBoard"),
+      onClick: () => onLinkPage("/admin"),
     },
     {
       key: "2",
       icon: <VideoCameraOutlined />,
-      label: "nav 2",
+      label: "Employee",
+      onClick: () => onLinkPage("employee"),
     },
     {
       key: "3",
@@ -88,7 +124,6 @@ const AdminLayout = () => {
           top: 0,
           bottom: 0,
           zIndex: 100,
-          
         }}
         trigger={null}
         collapsible
@@ -113,15 +148,16 @@ const AdminLayout = () => {
           items={sidebar}
         />
       </Sider>
-      <Layout className="transform duration-200"
-     
+      <Layout
+        className="transform duration-200"
         style={{
           marginLeft: collapsed ? "80px" : "200px",
-        }}>
+        }}
+      >
         <Header className="  p-0 bg-gray-200 flex justify-between items-center px-10 sticky top-0 z-10 shadow-lg">
           <p className="font-bold text-2xl">title</p>
           <div className="flex justify-center items-center gap-5">
-            {/* <p>{user.lastName + " " + user.firstName}</p> */}
+            <p>{user.firstname + " " + user.lastname}</p>
 
             <Dropdown
               className="flex float-right"
@@ -131,16 +167,16 @@ const AdminLayout = () => {
               trigger={["click"]}
             >
               <a onClick={(e) => e.preventDefault()}>
-                <Avatar icon={<UserOutlined />} />
-                {/* {user.profile === null ? (
+                
+                {user.profile === null ? (
               <Avatar icon={<UserOutlined />} />
             ) : (
               <img
-                className="border-2 border-blue-gray-400 rounded-full object-fill w-10"
-                src={configImage.image_path + user.profile}
+                className="border-2 border-blue-gray-400 rounded-full object-cover  w-10 h-10"
+                src={configImage.image_path + user.image}
                 alt="User Profile"
               />
-            )} */}
+            )}
               </a>
             </Dropdown>
           </div>
@@ -157,6 +193,72 @@ const AdminLayout = () => {
           <Outlet />
         </Content>
       </Layout>
+
+      {/* </Modal Change Password> */}
+      <Modal
+        title="Change Password"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <Form
+          layout="vertical"
+          form={form}
+          onFinish={handleOk}
+          name="controll hooks"
+        >
+          <Form.Item
+            name="Old password"
+            label="Old Password"
+            allowClear
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input type="password" />
+          </Form.Item>
+          <Form.Item
+            name="New password"
+            label="New Password"
+            allowClear
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            name="Confirm password"
+            label="Confirm Password"
+            allowClear
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input type="password" />
+          </Form.Item>
+          <Form.Item className="text-right">
+            <Space>
+              <Button htmlType="button">Clear</Button>
+              <Button htmlType="button">Cancel</Button>
+              <Button
+                htmlType="submit"
+                className="bg-blue-700 hover:bg-blue-500"
+                onClick={onUpdate}
+              >
+                Update
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
     </Layout>
   );
 };

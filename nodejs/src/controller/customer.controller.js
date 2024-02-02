@@ -1,6 +1,8 @@
 const db = require("../util/db");
 const bcrypt = require("bcrypt");
-
+const jwt = require("jsonwebtoken");
+const { TOKEN_KEY } = require("../util/helper");
+const { getPermissionUser } = require("./auth.controller");
 //getAll
 const getAll = async (req, res) => {
   try {
@@ -76,37 +78,38 @@ const isUserExist = async (email) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  //validate param request
-  var message = {};
-  if (email == null || email == "") {
-    message.email = "Please enter a valid email";
-  }
-  if (password == null || password == "") {
-    message.password = "Please enter a valid password";
-  }
+  const message = {};
+
+  if (!email) message.email = "Please enter a valid email";
+  if (!password) message.password = "Please enter a valid password";
+
   if (Object.keys(message).length > 0) {
-    res.json({
-      message: message,
-    });
+    return res.json({ message });
   }
 
   const user = await isUserExist(email);
-  if (!user) {
-    res.json({
-      message: "User or password are incorrect!",
-    });
-  } else {
-    // verify password (password_front_client, password_in_db)
-    const isCorrectPassword = await bcrypt.compareSync(password, user.password);
-    delete user.password;
-    res.json({
-      isSuccess: isCorrectPassword ? true : false,
-      message: isCorrectPassword
-        ? "Login success!"
-        : "User or password are incorrect!",
-      profile: isCorrectPassword ? user : null,
-    });
+  if (!user || !(await bcrypt.compareSync(password, user.password))) {
+    return res.json({ message: "User or password are incorrect!" });
   }
+
+ 
+  delete user.password;
+
+  const obj = {
+    user,
+    permission:[],
+    token: "", // generate token JWT
+  };
+
+  const access_token = jwt.sign({ data: obj }, TOKEN_KEY);
+  const refresh_token = jwt.sign({ data: obj }, REFRESH_KEY);
+
+  res.json({
+    message: "Login success!",
+    ...obj,
+    access_token,
+    refresh_token,
+  });
 };
 
 // upate customer
@@ -120,7 +123,7 @@ const update = async (req, res) => {
   UPDATE customer 
   SET  firstName = ?, lastName = ?, gender = ?, dob = ?, email = ?, tel = ?, profile = ? WHERE id = ? 
   `;
-  const params = [firstName, lastName, gender, dob, email, tel, filename,id];
+  const params = [firstName, lastName, gender, dob, email, tel, filename, id];
   const data = await db.query(slqUpdate, params, (err, result) => {
     if (!err) {
       res.json({
@@ -156,7 +159,8 @@ const updateImg = async (req, res) => {
 
 // insert
 const createCustomer = async (req, res) => {
-  const { firstName, lastName, gender, dob, email, tel, password } = req.body;
+  const {  firstName, lastName, gender, dob, email, tel, password } =
+    req.body;
   var filename = null;
   if (req.file) {
     filename = req.file.filename;
@@ -179,8 +183,18 @@ const createCustomer = async (req, res) => {
     //hash password
     const bcryptPassword = await bcrypt.hashSync(password, 10);
     const sqlInsertCustomer = await db.query(
-      "INSERT INTO customer (firstName, lastName, gender, dob, email, tel, password, profile) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [firstName, lastName, gender, dob, email, tel, bcryptPassword, filename]
+      "INSERT INTO customer ( firstName, lastName, gender, dob, email, tel, password, profile) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+       
+        firstName,
+        lastName,
+        gender,
+        dob,
+        email,
+        tel,
+        bcryptPassword,
+        filename,
+      ]
     );
     res.json({
       message: "Insert customer successfully!",

@@ -11,8 +11,8 @@ import QuickView from "./pages/quick_view/QuickViewPage";
 import CartPage from "./pages/shopping_cart/CartPage";
 
 // Admin Pages
-
 import DashBoard from "./components/admin/dashboard/DashBoard";
+import Employee from "./components/admin/employees/Employee";
 
 //Route Login and Logout Layout
 import LoginLayout from "../src/components/layout/LoginAndSigninLayout";
@@ -36,14 +36,16 @@ function App() {
           <Route path="cart" element={<CartPage />} />
         </Route>
         {/* Admin Layout */}
-        <Route path="/" element={<AdminLayout />}>
-          <Route path="DashBoard" element={<DashBoard />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="" element={<DashBoard />} />
+          <Route path="employee" element={<Employee />} />
         </Route>
 
         <Route path="*" element={<ErrorPage />} />
-        <Route path="/" element={<LoginLayout />}>
-        </Route>
-          <Route path="login" element={<LoginPage />} />
+
+        <Route path="/" element={<LoginLayout />}></Route>
+
+        <Route path="login" element={<LoginPage />} />
         <Route path="signUp" element={<SignUpPage />} />
       </Routes>
     </BrowserRouter>

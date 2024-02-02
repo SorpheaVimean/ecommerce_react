@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import {request} from "../../share/request";
 import bgn from "./login-bg.svg";
 import logo from "../../img/logo.png";
 
@@ -7,12 +8,31 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { FaApple } from "react-icons/fa";
 
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Checkbox, Form, Input, message } from "antd";
 import { Header } from "antd/es/layout/layout";
-const onFinish = (values) => {
-  console.log("Received values of form: ", values);
-};
+import { storeUserData } from "../../share/help";
+
 const LoginPage = () => {
+  const [loading, setLoading] = useState();
+
+  const onFinish = async (values) => {
+    setLoading(true)
+    var param = {
+      "email": values.email,
+      "password": values.password,
+    }
+    const res = await request( "employee/login", "post", param);
+    setLoading(false) 
+    if(res.isSuccess){
+      console.log("login successful");
+      storeUserData(res)
+      window.location.href="/admin"
+      
+    }else {
+      message.warning(res.message);
+    }
+  };
+ 
   return (
     <div>
       <Header className="flex items-center h-24">
@@ -78,7 +98,7 @@ const LoginPage = () => {
                 },
               ]}
             >
-              <Input type="password" placeholder="Input your Password" />
+              <Input.Password placeholder="Input your Password" />
             </Form.Item>
             <div className="flex justify-between items-center">
               <Form.Item name="remember" valuePropName="checked" noStyle>
@@ -91,6 +111,7 @@ const LoginPage = () => {
             </div>
             <Form.Item className="flex justify-center items-center mt-10">
               <Button
+              loading={loading}
                 type="primary"
                 htmlType="submit"
                 className="login-form-button bg-BgBtn  text-black w-80 duration-300 hover:scale-110"

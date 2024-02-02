@@ -31,20 +31,17 @@ const upload = multer({
   },
 });
 
-const removeFile = (fileName) => {
-  var filePath = Config.image_path + fileName;
+const removeFile = (filename) => {
+  var filePath = Config.image_path + filename;
   try {
     return fs.unlinkSync(filePath);
   } catch (err) {
     return false;
-    // res.status(500).send({
-    //   message: "Could not delete the file. " + err,
-    // });
   }
 };
 
-// exports.TOKEN_KEY = "LKJIJOPIEWRJ@#IU)(@U#)*@)#*$)LKJDSFSL:KJ12309802934908"
-// exports.REFRESH_KEY = "342080!@DCFS23;ksdfkq23po9[f323@$@#$@#$@$#@#$@#$sjdflajlkjsaf"
+TOKEN_KEY = "LKJIJOPIEWRJ@#IU)(@U#)*@)#*$)LKJDSFSL:KJ12309802934908"
+REFRESH_KEY = "342080!@DCFS23;ksdfkq23po9[f323@$@#$@#$@$#@#$@#$sjdflajlkjsaf"
 
 // const isEmptyOrNull = (value) => {
 //     if(value == "" || value == null || value == "null" || value == undefined ){
@@ -52,7 +49,6 @@ const removeFile = (fileName) => {
 //     }
 //     return false
 // }
-
 
 // // https://stackoverflow.com/questions/5366849/convert-1-to-0001-in-javascript
 // const invoiceNumber = (number) => {
@@ -72,6 +68,8 @@ const removeFile = (fileName) => {
 module.exports = {
   upload,
   removeFile,
+  TOKEN_KEY,
+  REFRESH_KEY,
   // isEmptyOrNull,
   // invoiceNumber,
   // productBarcode
