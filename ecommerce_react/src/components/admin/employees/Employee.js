@@ -19,6 +19,7 @@ import {
   Divider,
   InputNumber,
   DatePicker,
+  Image,
 } from "antd";
 import {
   configImage,
@@ -31,6 +32,9 @@ import {
   EditOutlined,
   DeleteOutlined,
   PlusCircleOutlined,
+  LoadingOutlined,
+  PlusOutlined,
+  FileImageOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 
@@ -101,12 +105,11 @@ const EmplyeePage = () => {
       getList();
       message.success(res.message);
     } else {
-      message.error(res.meassage);
+      message.error(res.message); // Corrected from res.meassage to res.message
     }
   };
 
   const onFinish = async (values) => {
-    
     // get value from form
     console.log("Success:", values);
     console.log("Is on clikc save");
@@ -140,15 +143,14 @@ const EmplyeePage = () => {
       method = "put";
     }
     const res = await request("employee", method, formData);
-    if (!res.error) {
+    if (res.error) {
+      message.error(res.error);
+    } else {
       message.success(res.message);
       getList();
       form.resetFields();
       onCloseModal();
-      console.log(res);
-    } else {
-      message.error(res.message);
-      console.log("THI IS ERROR", res.message);
+      console.log(res.message);
     }
   };
 
@@ -195,7 +197,7 @@ const EmplyeePage = () => {
     setImagePre(null);
     setImage(null);
     form.setFieldsValue({
-      image: null,
+      image: "",
     });
   };
 
@@ -205,7 +207,7 @@ const EmplyeePage = () => {
       key: "No",
       title: "No",
       dataIndex: "Id",
-      fixed: 'left',
+      fixed: "left",
       width: 60,
       render: (value, items, index) => index + 1,
     },
@@ -213,16 +215,15 @@ const EmplyeePage = () => {
       key: "firstname",
       title: "firstname",
       dataIndex: "firstname",
-      fixed: 'left',
+      fixed: "left",
       width: 100,
     },
     {
       key: "lastname",
       title: "lastname",
       dataIndex: "lastname",
-      fixed: 'left',
+      fixed: "left",
       width: 100,
-
     },
     {
       key: "gender",
@@ -254,20 +255,17 @@ const EmplyeePage = () => {
         return (
           <div>
             {value !== null && value !== "" ? (
-              <img
+              <Image
                 key={index}
                 src={configImage.image_path + value}
-                width={50}
+                width={60}
+                className="rounded-lg align-middle"
                 alt=""
               />
             ) : (
-              <div
-                style={{
-                  height: 100,
-                  width: 100,
-                  backgroundColor: "#eee",
-                }}
-              />
+              <div className="flex justify-start items-center">
+                <FileImageOutlined className="text-4xl" />
+              </div>
             )}
           </div>
         );
@@ -282,8 +280,7 @@ const EmplyeePage = () => {
       key: "role_id",
       title: "Role",
       dataIndex: "role_id",
-      render: (value, item, index) => {
-        
+      render: (value) => {
         switch (value) {
           case 1:
             value = "Admin";
@@ -299,9 +296,6 @@ const EmplyeePage = () => {
         }
         return <span>{value}</span>;
       },
-      // render: (value) => {
-      //   return <Tag color="blue">{value}</Tag>;
-      // },
     },
     {
       key: "createAt",
@@ -317,67 +311,31 @@ const EmplyeePage = () => {
         return (
           <div key={index}>
             {isPersmission("employee.Update") && (
-              // <Button type="primary" onClick={() => onClickEdit(item)}>
-              //   Edit
-              // </Button>
               <EditOutlined
                 className="mr-10 text-blue-600 text-xl hover:bg-gray-300 p-2 rounded-2xl transition duration-500"
                 onClick={() => onClickEdit(item)}
               />
             )}
-            {/* <Popconfirm
-              title="Delete"
-              description="Are you sure to delete this record?"
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => onDelete(item)}
-            >
-              <Button danger>Delete</Button>
-            </Popconfirm> */}
-            <Popconfirm
-              title="Delete Employee"
-              description="Are you sure to delete this employee?"
-              onConfirm={() => onDelete(item)}
-              okText="Yes"
-              cancelText="No"
-              okButtonProps={{
-                style: {
-                  backgroundColor: "blue",
-                  hover: { backgroundColor: "green" },
-                },
-              }}
-            >
-              <DeleteOutlined className=" text-red-500 text-xl  hover:bg-gray-300 p-2 rounded-2xl transition duration-500" />
-            </Popconfirm>
+            {isPersmission("employee.Delete") && (
+              <Popconfirm
+                title="Delete Employee"
+                description="Are you sure to delete this employee?"
+                onConfirm={() => onDelete(item)}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{
+                  style: {
+                    backgroundColor: "blue",
+                    hover: { backgroundColor: "green" },
+                  },
+                }}
+              >
+                <DeleteOutlined className=" text-red-500 text-xl  hover:bg-gray-300 p-2 rounded-2xl transition duration-500" />
+              </Popconfirm>
+            )}
           </div>
         );
       },
-      // render: (_, record) =>
-      //   list.length >= 1 ? (
-      //     <div>
-      //       <EditOutlined
-      //         className="mr-10 text-blue-600 text-xl hover:bg-gray-300 p-2 rounded-2xl transition duration-500"
-      //         onClick={() => onColickEdit(record)}
-      //       />
-      //       <Popconfirm
-      //         title="Delete Employee"
-      //         description="Are you sure to delete this employee?"
-      //         onConfirm={() => onDelete(record.id)}
-      //         okText="Yes"
-      //         cancelText="No"
-      //         okButtonProps={{
-      //           style: {
-      //             backgroundColor: "blue",
-      //             hover: { backgroundColor: "green" },
-      //           },
-      //         }}
-      //       >
-      //         <DeleteOutlined className=" text-red-500 text-xl  hover:bg-gray-300 p-2 rounded-2xl transition duration-500" />
-      //       </Popconfirm>
-
-      //       {/* <Button type="dashed">Edit</Button> */}
-      //     </div>
-      //   ) : null,
     },
   ];
   return (
@@ -400,12 +358,11 @@ const EmplyeePage = () => {
             <div className="">
               {isPersmission("employee.Create") && (
                 // <Button onClick={onNewEmplyee}>New Employee</Button>
-                
-                  <button
-                    
-                    className="bg-BgBtn hover:bg-BgBtnHover text-white px-4 py-3 rounded-lg mt-2"
-                    onClick={onNewEmplyee}
-                  >
+
+                <button
+                  className="bg-BgBtn hover:bg-BgBtnHover text-white px-4 py-3 rounded-lg mt-2"
+                  onClick={onNewEmplyee}
+                >
                   <PlusCircleOutlined className="mr-5 text-lg" />
                   Create Employee
                 </button>
@@ -414,10 +371,13 @@ const EmplyeePage = () => {
           </div>
         </div>
 
-        <Table dataSource={list} columns={columns}  scroll={{
-      x: 1500,
-      
-    }} />
+        <Table
+          dataSource={list}
+          columns={columns}
+          scroll={{
+            x: 1500,
+          }}
+        />
         <Modal
           open={visible}
           title={Id == null ? "New Employee" : "Update Employee"}
@@ -487,7 +447,7 @@ const EmplyeePage = () => {
               </Col>
               <Col span={12}>
                 <Form.Item
-                  name= "dob"
+                  name="dob"
                   label="Dob"
                   rules={[
                     {
@@ -609,23 +569,53 @@ const EmplyeePage = () => {
                   label="Select picture"
                   // name={"image"}
                 >
-                  <input type="file" ref={refMyImage} onChange={onChangFile} />
-                  <div>
-                    <img
-                      src={imagePre}
-                      width={100}
-                      style={{ marginTop: 10 }}
-                      alt=""
-                    />
-
-                    {Id != null && imagePre != null && (
-                      <div>
-                        <button onClick={onRmoveImageUpdate}>
-                          <IoIosCloseCircle size={22} color="red" />
-                        </button>
+                  {/* <input type="file" ref={refMyImage} onChange={onChangFile} /> */}
+                  {/* Custom button for selecting files */}
+                  {!imagePre && (
+                    <button
+                      className="bg-gray-100 rounded-full p-10 border border-dashed border-slate-400 hover:border-BgBtn hover:text-BgBtn hover:cu"
+                      onClick={(e) => {
+                        e.preventDefault(); // Prevent form submission
+                        refMyImage.current.click(); // Trigger file input click
+                      }}
+                    >
+                      <button type="button">
+                        <PlusOutlined />
+                        <div className="mt-2">Upload</div>
+                      </button>
+                    </button>
+                  )}
+                  {/* Show the preview image when there's a value */}
+                  {imagePre && (
+                    <>
+                      <div className="bg-gray-100 w-36 h-36 rounded-full overflow-hidden border  border-slate-400 flex justify-center items-center">
+                        <img
+                          src={imagePre}
+                          className=" rounded-full object-cover  w-32 h-32  "
+                          alt=""
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent form submission
+                            refMyImage.current.click(); // Trigger file input click
+                          }}
+                        />
                       </div>
-                    )}
-                  </div>
+
+                      {Id != null && (
+                        <div>
+                          <button onClick={onRmoveImageUpdate}>
+                            <DeleteOutlined className=" text-red-500 text-xl  hover:bg-gray-300 p-2 rounded-2xl transition duration-500" />
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {/* Hidden file input element */}
+                  <input
+                    type="file"
+                    ref={refMyImage}
+                    style={{ display: "none" }}
+                    onChange={onChangFile}
+                  />
                 </Form.Item>
               </Col>
             </Row>
