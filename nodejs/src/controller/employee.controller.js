@@ -1,26 +1,110 @@
 const db = require("../util/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { TOKEN_KEY, REFRESH_KEY, removeFile } = require("../util/helper");
+const {
+  TOKEN_KEY,
+  REFRESH_KEY,
+  removeFile,
+  isEmptyOrNull,
+} = require("../util/helper");
 const { getPermissionUser } = require("./auth.controller");
+const getParam = (value) => {
+  if (value == "" || value == "null" || value == "undefined") {
+    return null;
+  }
+  return value;
+};
 //getAll
+// const getAll = async (req, res) => {
+//   try {
+//     const { textSearch, page } = req.query;
+//     const pageSize = 5; // Define pageSize here
+//     var offset = ((page - 1) * pageSize); // find offset
+//     var select = "SELECT * FROM employee ";
+//     // SELECT * FROM employee LIMIT 3 OFFSET 1;
+//     var where = ""; // Initialize where variable
+//     if (textSearch != null && textSearch != "") {
+//       where = " WHERE firstname LIKE '%" + textSearch + "%' OR lastname LIKE '%" + textSearch + "%' OR id LIKE '%" + textSearch + "%' ";
+//     }
+//     var orderBy = " ORDER BY Id DESC"; // Define orderBy variable
+//     var limit = " LIMIT " + pageSize + " OFFSET " + offset; //2
+//     var sqlSelect = select + where + orderBy + limit;
+//     const sqlEmployee = await db.query(sqlSelect);
+//     const sqlRole = await db.query("SELECT * FROM role");
+//     // var total = 0;
+//     // if (page == 1) {
+//     //   var sqlCount = "SELECT COUNT(id) AS total FROM employee";
+//     //   var sql = sqlCount + where;
+//     //   var total = await db.query(sql);
+
+//     // }
+//     var total = 0;
+//     if(page == 1){
+//         var sqlCount = "SELECT COUNT(id) as Total FROM employee"
+//         sql = sqlCount + where
+//         var total = await db.query(sql)
+//     }
+//     res.json({
+//       total: total,
+//       list: sqlEmployee,
+//       role: sqlRole,
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({
+//       message: error.message,
+//     });
+//   }
+// };
 const getAll = async (req, res) => {
   try {
-    const sqlEmployee = await db.query("SELECT * FROM employee");
-    const sqlRole = await db.query("SELECT * FROM role");
-    const total = await db.query("SELECT COUNT(id) AS total FROM employee");
-    if (sqlEmployee && sqlRole && total) {
-      res.json({
-        total: total,
-        list: sqlEmployee,
-        role: sqlRole,
-      });
-    } else {
-      res.status(404).json({ message: "Data not found" });
+    const { page, txtSearch, roleId } = req.query;
+
+    var param = [getParam(roleId)];
+    var limitItem = 7;
+    var offset = (page - 1) * limitItem;
+
+    var select = "SELECT e.*, r.name as role_name ";
+    var join =
+      " FROM employee e " + " INNER JOIN role r ON (e.role_id = r.id) ";
+    var where = " WHERE e.role_id = IFNULL(?,e.role_id) ";
+
+    if (!isEmptyOrNull(txtSearch)) {
+      where += " AND (e.id = ? OR e.firstname LIKE ? OR e.lastname LIKE ?) "; // Make sure to add parentheses for OR conditions
+      param.push(txtSearch);
+      param.push("%" + txtSearch + "%");
+      param.push("%" + txtSearch + "%");
     }
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
+
+    var order = " ORDER BY e.id DESC ";
+    var limit = " LIMIT " + limitItem + " OFFSET " + offset + "";
+
+    var sql = select + join + where + order + limit;
+    const list = await db.query(sql, param);
+
+    var selectTotal = " SELECT COUNT(e.id) as total ";
+    var sqlTotal = selectTotal + join + where;
+    const totalRecord = await db.query(sqlTotal, param);
+
+    console.log(sql);
+    console.log(">>>");
+    console.log(sqlTotal);
+
+    var sqlRole = "SELECT * FROM role";
+    const role = await db.query(sqlRole);
+
+    res.json({
+      list: list,
+      totalRecord: totalRecord, // Access the total count from the first row
+      listRole: role,
+      bodyData: req.body,
+      queryData: req.query,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({
+      message: "Internal Error!",
+      error: e,
     });
   }
 };
@@ -233,7 +317,10 @@ const update = async (req, res) => {
           }
         }
         return res.json({
-          message: result.affectedRows !== 0 ? "Update success!" : "Employee not found!",
+          message:
+            result.affectedRows !== 0
+              ? "Employee updated successfully!"
+              : "Employee not found!",
           data: result,
           is_remove_file: is_remove_file,
         });
@@ -246,7 +333,6 @@ const update = async (req, res) => {
     });
   });
 };
-
 
 // Update image
 const updateImg = async (req, res) => {
@@ -317,7 +403,7 @@ const createEmployee = async (req, res) => {
     );
 
     res.json({
-      message: "Insert employee successfully!",
+      message: "Employee created successfully!",
     });
   } catch (error) {
     res.status(500).json({
@@ -347,27 +433,28 @@ const createEmployee = async (req, res) => {
 //   }
 // };
 
-const remove = (req,res) => {
-  const { id,image } = req.body;
+const remove = (req, res) => {
+  const { id, image } = req.body;
   var sql = "DELETE FROM employee WHERE id = ?";
   var param = [id];
-  db.query(sql,param,(error,rows)=>{
-      if(!error){
-          if(rows.affectedRows != 0){
-              removeFile(image)
-          }
-          res.json({
-              message:rows.affectedRows != 0 ? "Remove success!" : "Employee not found!",
-              data:rows
-          })
-      }else{
-          res.json({
-              error:true,
-              message:error
-          })
+  db.query(sql, param, (error, rows) => {
+    if (!error) {
+      if (rows.affectedRows != 0) {
+        removeFile(image);
       }
-  })
-}
+      res.json({
+        message:
+          rows.affectedRows != 0 ? "Employee removed successfully!" : "Employee not found!",
+        data: rows,
+      });
+    } else {
+      res.json({
+        error: true,
+        message: error,
+      });
+    }
+  });
+};
 
 module.exports = {
   getAll,

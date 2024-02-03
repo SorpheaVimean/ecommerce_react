@@ -43,12 +43,9 @@ const removeFile = (filename) => {
 TOKEN_KEY = "LKJIJOPIEWRJ@#IU)(@U#)*@)#*$)LKJDSFSL:KJ12309802934908"
 REFRESH_KEY = "342080!@DCFS23;ksdfkq23po9[f323@$@#$@#$@$#@#$@#$sjdflajlkjsaf"
 
-// const isEmptyOrNull = (value) => {
-//     if(value == "" || value == null || value == "null" || value == undefined ){
-//         return true
-//     }
-//     return false
-// }
+const isEmptyOrNull = (value) => {
+  return value === "" || value === null || value === undefined;
+}
 
 // // https://stackoverflow.com/questions/5366849/convert-1-to-0001-in-javascript
 // const invoiceNumber = (number) => {
@@ -70,7 +67,7 @@ module.exports = {
   removeFile,
   TOKEN_KEY,
   REFRESH_KEY,
-  // isEmptyOrNull,
+  isEmptyOrNull,
   // invoiceNumber,
   // productBarcode
 };

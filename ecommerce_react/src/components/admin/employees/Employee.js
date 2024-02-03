@@ -37,6 +37,7 @@ import {
   FileImageOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
+import MainPage from "../../layout/MainPage";
 
 const { Option } = Select;
 const layout = {
@@ -53,38 +54,57 @@ const EmplyeePage = () => {
   const [list, setList] = useState([]);
   const [role, setRole] = useState([]);
 
-  const [total, setTotal] = useState(0);
+  const [totalRecord, setTotalRecord] = useState(0);
+
   const [loading, setLoadin] = useState(false);
   const [visible, setVisible] = useState(false);
   const [Id, setId] = useState(null);
   const [image, setImage] = useState(null);
   const [imagePre, setImagePre] = useState(null);
-  const [textSearch, setTextSearch] = useState("");
-  const [tel, setTel] = useState();
+  // const [tel, setTel] = useState();
   const refMyImage = useRef();
   const [dob, setDob] = useState();
 
-  useEffect(() => {
-    getList();
-  }, []);
+  const [objFilter, setObjFilter] = useState({
+    page: 1,
+    txtSearch: "",
+    roleSearch: null,
+  });
+  const { page, txtSearch, roleSearch } = objFilter;
 
-  const getList = async () => {
+  useEffect(() => {
+    getList(objFilter);
+  }, [page, roleSearch, txtSearch]);
+
+  const getList = async (parameter = {}) => {
     setLoadin(true);
-    var param = "";
-    if (textSearch !== +"") {
-      param = "?textSearch=" + textSearch;
-    }
+    var param = "?page=" + (parameter.page || 1);
+    param += "&txtSearch=" + (parameter.txtSearch || "");
+    param += "&roleId=" + parameter.roleSearch;
     const res = await request("employee" + param, "get");
-    setLoadin(false);
+    setTimeout(() => {
+      setLoadin(false);
+    }, 300);
+
     if (res) {
       setList(res.list);
-      setRole(res.role);
-
-      setTotal(res.total[0].total);
-    } else {
+      setRole(res.listRole);
+      if (res.totalRecord.length > 0) {
+        setTotalRecord(res.totalRecord[0].total);
+      }
     }
   };
 
+  const clearFilter = () => {
+    var objClear = {
+      ...objFilter,
+      page: 1,
+      txtSearch: "",
+      roleSearch: null,
+    };
+    setObjFilter({ ...objClear });
+    getList(objClear);
+  };
   const onNewEmplyee = () => {
     setVisible(true);
   };
@@ -142,7 +162,9 @@ const EmplyeePage = () => {
       formData.append("id", Id);
       method = "put";
     }
+    setLoadin(true);
     const res = await request("employee", method, formData);
+    setLoadin(false);
     if (res.error) {
       message.error(res.error);
     } else {
@@ -178,14 +200,27 @@ const EmplyeePage = () => {
     setVisible(true);
   };
 
-  const onSearch = (value) => {
-    getList();
-  };
+  // const onSearch = (value) => {
+  //   var objTmp = {
+  //     ...objFilter,
+  //     txtSearch: value,
+  //     page: value === "" ? 1 : objFilter.page,
+  //   };
+  //   setObjFilter(objTmp);
+  //   getList(objTmp);
+  // };
 
-  const onChangeTextSearch = (e) => {
-    setTextSearch(e.target.value);
-  };
-
+  // const onChangeTextSearch = (e) => {
+  //   // setTextSearch(e.target.value);
+  // };
+  // const onChangePage = (page) => {
+  //   var objTmp = {
+  //     ...objFilter,
+  //     page: page,
+  //   };
+  //   setObjFilter(objTmp);
+  //   getList(objTmp);
+  // };
   const onChangFile = (e) => {
     var file = e.target.files[0];
     setImage(file);
@@ -205,11 +240,11 @@ const EmplyeePage = () => {
   const columns = [
     {
       key: "No",
-      title: "No",
-      dataIndex: "Id",
+      title: "ID",
+      dataIndex: "id",
       fixed: "left",
       width: 60,
-      render: (value, items, index) => index + 1,
+      // render: (value, items, index) => index + 1,
     },
     {
       key: "firstname",
@@ -339,136 +374,221 @@ const EmplyeePage = () => {
     },
   ];
   return (
-    <div>
-      <Spin spinning={loading}>
-        <div className="mb-2">
-          <div className="text-5xl text-center mb-5">Employee</div>
-          <div className="flex justify-between ">
-            <div className="flex ">
-              <div className="text-3xl w-full mr-10">
-                Total Employees: {total}{" "}
+    <MainPage loading={loading}>
+      <div className="mb-2">
+        <div className="text-5xl text-center mb-5">Employee</div>
+        <div className="flex justify-between ">
+          <div className="flex ">
+            <Space>
+              <div className="text-3xl w-full ">
+                Total Employees: {totalRecord}
               </div>
-              <Input.Search
-                allowClear
-                placeholder="Search by name..."
-                onSearch={onSearch}
-                onChange={onChangeTextSearch}
-              />
-            </div>
-            <div className="">
-              {isPersmission("employee.Create") && (
-                // <Button onClick={onNewEmplyee}>New Employee</Button>
 
-                <button
-                  className="bg-BgBtn hover:bg-BgBtnHover text-white px-4 py-3 rounded-lg mt-2"
-                  onClick={onNewEmplyee}
-                >
-                  <PlusCircleOutlined className="mr-5 text-lg" />
-                  Create Employee
-                </button>
-              )}
-            </div>
+              <Input
+                value={txtSearch}
+                placeholder="Search by id, firstname, lastname"
+                allowClear={true}
+                className="w-96"
+                onChange={(event) => {
+                  setObjFilter({
+                    ...objFilter,
+                    txtSearch: event.target.value,
+                  });
+                }}
+              />
+
+              <Select
+                value={roleSearch}
+                placeholder="Search by Role"
+                className="w-40 "
+                allowClear
+                onChange={(value) => {
+                  setObjFilter({
+                    ...objFilter,
+                    roleSearch: value,
+                  });
+                }}
+              >
+                {role?.map((item, index) => {
+                  return (
+                    <Option key={index} value={item.id}>
+                      {item.name}
+                    </Option>
+                  );
+                })}
+              </Select>
+              {/* <button
+                onClick={() => getList(objFilter)}
+                className="bg-BgBtn w-32 hover:bg-BgBtnHover text-white px-2 py-3 rounded-lg mt-2"
+              >
+                Filter
+              </button>
+              <button
+                onClick={() => clearFilter()}
+                className=" border border-BgBtn w-32 border-dashed hover:bg-BgBtnHover  px-2 py-3 rounded-lg mt-2 text-black"
+              >
+                Clear
+              </button> */}
+            </Space>
+          </div>
+          <div className="">
+            {isPersmission("employee.Create") && (
+              <button
+                className="bg-BgBtn hover:bg-BgBtnHover text-white px-4 py-3 rounded-lg mt-2"
+                onClick={onNewEmplyee}
+              >
+                <PlusCircleOutlined className="mr-5 text-lg" />
+                Create Employee
+              </button>
+            )}
           </div>
         </div>
+      </div>
 
-        <Table
-          dataSource={list}
-          columns={columns}
-          scroll={{
-            x: 1500,
-          }}
-        />
-        <Modal
-          open={visible}
-          title={Id == null ? "New Employee" : "Update Employee"}
-          onCancel={onCloseModal}
-          footer={null}
-          maskClosable={false}
-          width={800}
+      <Table
+        pagination={{
+          defaultCurrent: 1,
+          total: totalRecord,
+          pageSize: 7,
+          onChange: (page, pageSize) => {
+            setObjFilter({
+              ...objFilter,
+              page: page,
+            });
+          },
+          // onShowSizeChange  // Called when pageSize is changed
+        }}
+        dataSource={list}
+        columns={columns}
+        scroll={{
+          x: 1500,
+        }}
+      />
+      <Modal
+        open={visible}
+        title={Id == null ? "New Employee" : "Update Employee"}
+        onCancel={onCloseModal}
+        footer={null}
+        maskClosable={false}
+        width={800}
+      >
+        <Form
+          {...layout}
+          form={form}
+          name="control-hooks"
+          onFinish={onFinish}
+          // style={{
+          //     maxWidth: 600,
+          // }}
         >
-          <Form
-            {...layout}
-            form={form}
-            name="control-hooks"
-            onFinish={onFinish}
-            // style={{
-            //     maxWidth: 600,
-            // }}
-          >
-            <Divider />
-            <Row gutter={5}>
-              <Col span={12}>
-                <Form.Item
-                  name="firstname"
-                  label="Firstanme"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
+          <Divider />
+          <Row gutter={5}>
+            <Col span={12}>
+              <Form.Item
+                name="firstname"
+                label="Firstanme"
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="lastname"
+                label="Lastname"
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                name="gender"
+                label="Gender"
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  placeholder="Please select gender"
+                  allowClear={true}
+                  onChange={() => {}}
                 >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="lastname"
-                  label="Lastname"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={12}>
-                <Form.Item
-                  name="gender"
-                  label="Gender"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    placeholder="Please select gender"
-                    allowClear={true}
-                    onChange={() => {}}
-                  >
-                    <Option value={"1"}>Male</Option>
-                    <Option value={"2"}>Female</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="dob"
-                  label="Dob"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    className="w-full"
-                    Selected={dob}
-                    onChange={(date) => setDob(date)}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
+                  <Option value={"1"}>Male</Option>
+                  <Option value={"2"}>Female</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="dob"
+                label="Dob"
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <DatePicker
+                  className="w-full"
+                  Selected={dob}
+                  onChange={(date) => setDob(date)}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
 
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                name="tel"
+                label="Tel"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your telephone number!",
+                  },
+                  {
+                    pattern: /^[0-9]+$/,
+                    message: "Tel must contain only numbers!",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+          {Id === null && (
             <Row>
               <Col span={12}>
                 <Form.Item
-                  name="tel"
-                  label="Tel"
+                  name="salary"
+                  label="Salary"
                   rules={[
                     {
                       required: true,
@@ -485,158 +605,123 @@ const EmplyeePage = () => {
               </Col>
               <Col span={12}>
                 <Form.Item
-                  name="email"
-                  label="Email"
+                  name="password"
+                  label="Password"
                   rules={[
                     {
                       required: true,
                     },
                   ]}
                 >
-                  <Input />
+                  <Input.Password />
                 </Form.Item>
               </Col>
             </Row>
-            {Id === null && (
-              <Row>
-                <Col span={12}>
-                  <Form.Item
-                    name="salary"
-                    label="Salary"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input your telephone number!",
-                      },
-                      {
-                        pattern: /^[0-9]+$/,
-                        message: "Tel must contain only numbers!",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="password"
-                    label="Password"
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input.Password />
-                  </Form.Item>
-                </Col>
-              </Row>
-            )}
+          )}
 
-            <Row>
-              <Col span={12}>
-                <Form.Item name="address" label="Address">
-                  <Input.TextArea />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="role_id"
-                  label="Role"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
+          <Row>
+            <Col span={12}>
+              <Form.Item name="address" label="Address">
+                <Input.TextArea />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="role_id"
+                label="Role"
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                {/* <Input /> */}
+                <Select
+                  placeholder=" select role"
+                  allowClear={true}
+                  onChange={() => {}}
                 >
-                  {/* <Input /> */}
-                  <Select
-                    placeholder=" select role"
-                    allowClear={true}
-                    onChange={() => {}}
-                  >
-                    <Option value={"1"}>Admin</Option>
-                    <Option value={"2"}>Manager</Option>
-                    <Option value={"3"}>Seller</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
+                  <Option value={"1"}>Admin</Option>
+                  <Option value={"2"}>Manager</Option>
+                  <Option value={"3"}>Seller</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-            <Row>
-              <Col span={12}>
-                <Form.Item
-                  label="Select picture"
-                  // name={"image"}
-                >
-                  {/* <input type="file" ref={refMyImage} onChange={onChangFile} /> */}
-                  {/* Custom button for selecting files */}
-                  {!imagePre && (
-                    <button
-                      className="bg-gray-100 rounded-full p-10 border border-dashed border-slate-400 hover:border-BgBtn hover:text-BgBtn hover:cu"
-                      onClick={(e) => {
-                        e.preventDefault(); // Prevent form submission
-                        refMyImage.current.click(); // Trigger file input click
-                      }}
-                    >
-                      <button type="button">
-                        <PlusOutlined />
-                        <div className="mt-2">Upload</div>
-                      </button>
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                label="Select picture"
+                // name={"image"}
+              >
+                {/* <input type="file" ref={refMyImage} onChange={onChangFile} /> */}
+                {/* Custom button for selecting files */}
+                {!imagePre && (
+                  <button
+                    className="bg-gray-100 rounded-full p-10 border border-dashed border-slate-400 hover:border-BgBtn hover:text-BgBtn hover:cu"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent form submission
+                      refMyImage.current.click(); // Trigger file input click
+                    }}
+                  >
+                    <button type="button">
+                      <PlusOutlined />
+                      <div className="mt-2">Upload</div>
                     </button>
-                  )}
-                  {/* Show the preview image when there's a value */}
-                  {imagePre && (
-                    <>
-                      <div className="bg-gray-100 w-36 h-36 rounded-full overflow-hidden border  border-slate-400 flex justify-center items-center">
-                        <img
-                          src={imagePre}
-                          className=" rounded-full object-cover  w-32 h-32  "
-                          alt=""
-                          onClick={(e) => {
-                            e.preventDefault(); // Prevent form submission
-                            refMyImage.current.click(); // Trigger file input click
-                          }}
-                        />
+                  </button>
+                )}
+                {/* Show the preview image when there's a value */}
+                {imagePre && (
+                  <>
+                    <div className="bg-gray-100 w-36 h-36 rounded-full overflow-hidden border  border-slate-400 flex justify-center items-center">
+                      <img
+                        src={imagePre}
+                        className=" rounded-full object-cover  w-32 h-32  "
+                        alt=""
+                        onClick={(e) => {
+                          e.preventDefault(); // Prevent form submission
+                          refMyImage.current.click(); // Trigger file input click
+                        }}
+                      />
+                    </div>
+
+                    {Id != null && (
+                      <div>
+                        <button onClick={onRmoveImageUpdate}>
+                          <DeleteOutlined className=" text-red-500 text-xl  hover:bg-gray-300 p-2 rounded-2xl transition duration-500" />
+                        </button>
                       </div>
+                    )}
+                  </>
+                )}
+                {/* Hidden file input element */}
+                <input
+                  type="file"
+                  ref={refMyImage}
+                  style={{ display: "none" }}
+                  onChange={onChangFile}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
 
-                      {Id != null && (
-                        <div>
-                          <button onClick={onRmoveImageUpdate}>
-                            <DeleteOutlined className=" text-red-500 text-xl  hover:bg-gray-300 p-2 rounded-2xl transition duration-500" />
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                  {/* Hidden file input element */}
-                  <input
-                    type="file"
-                    ref={refMyImage}
-                    style={{ display: "none" }}
-                    onChange={onChangFile}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Form.Item wrapperCol={24} style={{ textAlign: "right" }}>
-              <Space>
-                <Button htmlType="button" onClick={onCloseModal}>
-                  Cancel
-                </Button>
-                <Button htmlType="button" onClick={onClearForm}>
-                  Clear
-                </Button>
-                <Button htmlType="summit" type="primary">
-                  {Id == null ? "SAVE" : "UPDATE"}
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Modal>
-      </Spin>
-    </div>
+          <Form.Item wrapperCol={24} style={{ textAlign: "right" }}>
+            <Space>
+              <Button htmlType="button" onClick={onCloseModal}>
+                Cancel
+              </Button>
+              <Button htmlType="button" onClick={onClearForm}>
+                Clear
+              </Button>
+              <Button htmlType="summit" type="primary">
+                {Id == null ? "SAVE" : "UPDATE"}
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </MainPage>
   );
 };
 
