@@ -5,19 +5,15 @@ import {
   Button,
   Table,
   Space,
-  Tag,
   Input,
   Modal,
   Form,
   Select,
-  Slider,
-  Spin,
   message,
   Popconfirm,
   Col,
   Row,
   Divider,
-  InputNumber,
   DatePicker,
   Image,
 } from "antd";
@@ -27,12 +23,10 @@ import {
   formatDateServer,
   isPersmission,
 } from "../../../share/help";
-import { IoIosCloseCircle } from "react-icons/io";
 import {
   EditOutlined,
   DeleteOutlined,
   PlusCircleOutlined,
-  LoadingOutlined,
   PlusOutlined,
   FileImageOutlined,
 } from "@ant-design/icons";
@@ -61,7 +55,6 @@ const EmplyeePage = () => {
   const [Id, setId] = useState(null);
   const [image, setImage] = useState(null);
   const [imagePre, setImagePre] = useState(null);
-  // const [tel, setTel] = useState();
   const refMyImage = useRef();
   const [dob, setDob] = useState();
 
@@ -74,7 +67,7 @@ const EmplyeePage = () => {
 
   useEffect(() => {
     getList(objFilter);
-  }, [page, roleSearch, txtSearch]);
+  }, [objFilter]);
 
   const getList = async (parameter = {}) => {
     setLoadin(true);
@@ -95,16 +88,7 @@ const EmplyeePage = () => {
     }
   };
 
-  const clearFilter = () => {
-    var objClear = {
-      ...objFilter,
-      page: 1,
-      txtSearch: "",
-      roleSearch: null,
-    };
-    setObjFilter({ ...objClear });
-    getList(objClear);
-  };
+  
   const onNewEmplyee = () => {
     setVisible(true);
   };
@@ -130,11 +114,8 @@ const EmplyeePage = () => {
   };
 
   const onFinish = async (values) => {
-    // get value from form
-    console.log("Success:", values);
-    console.log("Is on clikc save");
-    const formatdob = formatDateServer(dob);
-    var formData = new FormData(); // create formData
+    const formatdob = formatDateServer(values.dob);
+    var formData = new FormData(); 
     formData.append("firstname", values.firstname);
     formData.append("lastname", values.lastname);
     formData.append("gender", values.gender);
@@ -165,14 +146,12 @@ const EmplyeePage = () => {
     setLoadin(true);
     const res = await request("employee", method, formData);
     setLoadin(false);
-    if (res.error) {
-      message.error(res.error);
-    } else {
+    if (res) {
       message.success(res.message);
       getList();
       form.resetFields();
       onCloseModal();
-      console.log(res.message);
+      
     }
   };
 
@@ -183,21 +162,22 @@ const EmplyeePage = () => {
     refMyImage.current.value = null;
   };
 
-  const onClickEdit = (item) => {
-    setId(item.id);
+  const onClickEdit = (value) => {
+    setId(value.id);
     form.setFieldsValue({
-      firstname: item.firstname,
-      lastname: item.lastname,
-      gender: item.gender + "",
-      dob: moment(formatDateServer(item.dob)),
-      email: item.email,
-      tel: item.tel,
-      address: item.address,
-      role_id: item.role_id + "",
-      image: item.image,
+      firstname: value.firstname,
+      lastname: value.lastname,
+      gender: value.gender + "",
+      dob: moment(formatDateClient(value.dob)),
+      email: value.email,
+      tel: value.tel,
+      address: value.address,
+      role_id: value.role_id + "",
+      image: value.image,
     });
-    setImagePre(configImage.image_path + item.image);
+    setImagePre(configImage.image_path + value.image);
     setVisible(true);
+    
   };
 
   // const onSearch = (value) => {
@@ -380,7 +360,7 @@ const EmplyeePage = () => {
         <div className="flex justify-between ">
           <div className="flex ">
             <Space>
-              <div className="text-3xl w-full ">
+              <div className="text-md w-full lg:text-2xl ">
                 Total Employees: {totalRecord}
               </div>
 
@@ -388,7 +368,7 @@ const EmplyeePage = () => {
                 value={txtSearch}
                 placeholder="Search by id, firstname, lastname"
                 allowClear={true}
-                className="w-96"
+                className="w-96 xs:w-56"
                 onChange={(event) => {
                   setObjFilter({
                     ...objFilter,
@@ -434,10 +414,10 @@ const EmplyeePage = () => {
           <div className="">
             {isPersmission("employee.Create") && (
               <button
-                className="bg-BgBtn hover:bg-BgBtnHover text-white px-4 py-3 rounded-lg mt-2"
+                className="bg-BgBtn hover:bg-BgBtnHover text-white px-1 py-3 rounded-lg mt-2"
                 onClick={onNewEmplyee}
               >
-                <PlusCircleOutlined className="mr-5 text-lg" />
+                <PlusCircleOutlined className="mr-3 text-lg" />
                 Create Employee
               </button>
             )}
@@ -477,9 +457,6 @@ const EmplyeePage = () => {
           form={form}
           name="control-hooks"
           onFinish={onFinish}
-          // style={{
-          //     maxWidth: 600,
-          // }}
         >
           <Divider />
           <Row gutter={5}>
@@ -635,7 +612,6 @@ const EmplyeePage = () => {
                   },
                 ]}
               >
-                {/* <Input /> */}
                 <Select
                   placeholder=" select role"
                   allowClear={true}
@@ -655,8 +631,6 @@ const EmplyeePage = () => {
                 label="Select picture"
                 // name={"image"}
               >
-                {/* <input type="file" ref={refMyImage} onChange={onChangFile} /> */}
-                {/* Custom button for selecting files */}
                 {!imagePre && (
                   <button
                     className="bg-gray-100 rounded-full p-10 border border-dashed border-slate-400 hover:border-BgBtn hover:text-BgBtn hover:cu"
@@ -708,9 +682,7 @@ const EmplyeePage = () => {
 
           <Form.Item wrapperCol={24} style={{ textAlign: "right" }}>
             <Space>
-              <Button htmlType="button" onClick={onCloseModal}>
-                Cancel
-              </Button>
+              
               <Button htmlType="button" onClick={onClearForm}>
                 Clear
               </Button>

@@ -19,9 +19,11 @@ import {
   Input,
   Space,
   Modal,
+  message,
 } from "antd";
 import { Outlet, useNavigate } from "react-router-dom";
 import { configImage, getUser, isLogin, logout } from "../../share/help";
+import { request } from "../../share/request";
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout = () => {
@@ -43,16 +45,36 @@ const AdminLayout = () => {
     console.log(isLogin());
   };
 
-  const showModal = () => {
+  const showModal = (user) => {
     setIsModalOpen(true);
   };
-  const handleOk = () => {
-    setIsModalOpen(false);
+  const onClear = () => {
+    form.resetFields();
   };
-  const handleCancel = () => {
+
+  const onCancel = () => {
     setIsModalOpen(false);
+    onClear();
   };
-  const onUpdate = () => {};
+  const onUpdate = async (value) => {
+    setIsModalOpen(false);
+    // Extracting form values
+    // const { oldPassword, newPassword, confirmPassword } = value;
+    // const { id, email } = user;
+    const params = {
+      "id": user.id,
+      "email": user.email,
+      "oldPassword": value.oldPassword,
+      "newPassword": value.newPassword,
+      "confirmPassword": value.confirmPassword,
+    };
+    const res = await request("employee/setPassword", "POST", params);
+    if (res) {
+      message.success(res.message);
+      onCancel();
+    }
+    console.log("Value from param", params);
+  };
 
   useEffect(() => {
     if (!isLogin()) {
@@ -86,33 +108,35 @@ const AdminLayout = () => {
       label: "nav 3",
     },
   ];
-  // dropdow of profile
+  // dropdown of profile
   const items = [
     {
-      label: <button type="button">Profile</button>,
+      label: "Profile", // Wrap the button element in a span
       key: "0",
-      onClick: () => onLinkPage("/ProfilePage"),
+      onClick: () => onLinkPage("/admin/profile"),
     },
     {
       type: "divider",
     },
     {
-      label: (
-        <button type="button" onClick={showModal}>
-          Reset password
-        </button>
-      ),
+      // Wrap the button element in a span
+      label: <span>Reset password</span>,
       key: "1",
+      onClick: showModal,
     },
     {
       label: (
-        <button type="button" onClick={onLogOut}>
+        <span>
+          {" "}
+          {/* Wrap the button element in a span */}
           <LogoutOutlined /> LogOut
-        </button>
+        </span>
       ),
       key: "3",
+      onClick: onLogOut,
     },
   ];
+
   return (
     <Layout>
       <Sider
@@ -167,16 +191,15 @@ const AdminLayout = () => {
               trigger={["click"]}
             >
               <a onClick={(e) => e.preventDefault()}>
-                
                 {user.profile === null ? (
-              <Avatar icon={<UserOutlined />} />
-            ) : (
-              <img
-                className="border-2 border-blue-gray-400 rounded-full object-cover  w-10 h-10"
-                src={configImage.image_path + user.image}
-                alt="User Profile"
-              />
-            )}
+                  <Avatar icon={<UserOutlined />} />
+                ) : (
+                  <img
+                    className="border-2 border-blue-gray-400 rounded-full object-cover  w-10 h-10"
+                    src={configImage.image_path + user.image}
+                    alt="User Profile"
+                  />
+                )}
               </a>
             </Dropdown>
           </div>
@@ -198,19 +221,20 @@ const AdminLayout = () => {
       <Modal
         title="Change Password"
         open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
+        onOk={onUpdate}
+        onCancel={onCancel}
+        maskClosable={false}
         footer={null}
       >
         <Form
           layout="vertical"
           form={form}
-          onFinish={handleOk}
-          name="controll hooks"
+          onFinish={onUpdate}
+          name="controll-hooks"
         >
           <Form.Item
-            name="Old password"
-            label="Old Password"
+            name="oldPassword"
+            label="OldPassword"
             allowClear
             rules={[
               {
@@ -221,8 +245,8 @@ const AdminLayout = () => {
             <Input type="password" />
           </Form.Item>
           <Form.Item
-            name="New password"
-            label="New Password"
+            name="newPassword"
+            label="NewPassword"
             allowClear
             rules={[
               {
@@ -233,8 +257,8 @@ const AdminLayout = () => {
             <Input.Password />
           </Form.Item>
           <Form.Item
-            name="Confirm password"
-            label="Confirm Password"
+            name="confirmPassword"
+            label="ConfirmPassword"
             allowClear
             rules={[
               {
@@ -246,15 +270,21 @@ const AdminLayout = () => {
           </Form.Item>
           <Form.Item className="text-right">
             <Space>
-              <Button htmlType="button">Clear</Button>
-              <Button htmlType="button">Cancel</Button>
-              <Button
+              <button
+                htmlType="button"
+                className=" text-center border border-BgBtn w-32 border-dashed hover:bg-BgBtnHover  px-2 py-2 rounded-lg mt-2 text-black"
+                onClick={onClear}
+              >
+                Clear
+              </button>
+
+              <button
                 htmlType="submit"
-                className="bg-blue-700 hover:bg-blue-500"
+                className="bg-BgBtn w-32 hover:bg-BgBtnHover text-white px-2 py-2 rounded-lg mt-2"
                 onClick={onUpdate}
               >
                 Update
-              </Button>
+              </button>
             </Space>
           </Form.Item>
         </Form>

@@ -9,7 +9,7 @@ export const getUser = () => {
   var user = localStorage.getItem("user");
   if (!isEmptyOrNull(user)) {
     user = JSON.parse(user);
-    console.log(user);
+    
     return user;
   } else {
     logout();
@@ -93,7 +93,7 @@ export const logout = () => {
 
 export const formatDateClient = (date) => {
   if(!isEmptyOrNull(date)){
-      return moment(date).format("DD/MM/YYYY hh:mm");
+      return moment(date).format("DD/MM/YYYY ");
   }
   return null
 }

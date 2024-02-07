@@ -24,12 +24,10 @@ const LoginPage = () => {
     const res = await request( "employee/login", "post", param);
     setLoading(false) 
     if(res.isSuccess){
-      console.log("login successful");
+      
       storeUserData(res)
       window.location.href="/admin"
       
-    }else {
-      message.warning(res.message);
     }
   };
  
@@ -50,18 +48,18 @@ const LoginPage = () => {
           </h2>
           {/* connect with */}
           <div className="my-10  flex flex-col items-center justify-center  text-md font-bold leading-9 tracking-tigh text-gray-300">
-            <a className="flex items-center border-2 px-5 py-1 rounded-full border-slate-400 hover:border-white mb-2">
+            <button  className="flex items-center border-2 px-5 py-1 rounded-full border-slate-400 hover:border-white mb-2">
               <FcGoogle className=" text-2xl mr-10 " />
               <p className=" mr-12 text-white ">Continue with Google</p>
-            </a>
-            <a className="flex items-center border-2 px-4 py-1 rounded-full border-slate-400 hover:border-white mb-2">
+            </button>
+            <button  className="flex items-center border-2 px-4 py-1 rounded-full border-slate-400 hover:border-white mb-2">
               <FaFacebook className=" text-2xl mr-8 text-[#1877f2]" />
               <p className=" mr-12 text-white">Continue with Facebook</p>
-            </a>
-            <a className="flex items-center border-2 px-5 py-1 rounded-full border-slate-400 hover:border-white">
+            </button>
+            <button  className="flex items-center border-2 px-5 py-1 rounded-full border-slate-400 hover:border-white">
               <FaApple className=" text-2xl mr-10 text-white" />
               <p className=" mr-12 text-white">Continue with Apple</p>
-            </a>
+            </button>
           </div>
           {/* form */}
           <Form

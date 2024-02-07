@@ -13,6 +13,7 @@ import CartPage from "./pages/shopping_cart/CartPage";
 // Admin Pages
 import DashBoard from "./components/admin/dashboard/DashBoard";
 import Employee from "./components/admin/employees/Employee";
+import ProfilePage from "./components/admin/profile/ProfilePage";
 
 //Route Login and Logout Layout
 import LoginLayout from "../src/components/layout/LoginAndSigninLayout";
@@ -39,6 +40,8 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="" element={<DashBoard />} />
           <Route path="employee" element={<Employee />} />
+          <Route path="profile" element={<ProfilePage />} />
+
         </Route>
 
         <Route path="*" element={<ErrorPage />} />

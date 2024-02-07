@@ -86,10 +86,6 @@ const getAll = async (req, res) => {
     var sqlTotal = selectTotal + join + where;
     const totalRecord = await db.query(sqlTotal, param);
 
-    console.log(sql);
-    console.log(">>>");
-    console.log(sqlTotal);
-
     var sqlRole = "SELECT * FROM role";
     const role = await db.query(sqlRole);
 
@@ -100,56 +96,76 @@ const getAll = async (req, res) => {
       bodyData: req.body,
       queryData: req.query,
     });
-  } catch (e) {
+  } catch (error) {
     console.log(e);
     res.status(500).send({
-      message: "Internal Error!",
-      error: e,
+      message: error.message,
     });
   }
 };
 
 // update password
 const updatePassword = async (req, res) => {
-  const { id, email, oldPassword, newPassword, confirmPassword } = req.body;
-
-  // Validate request parameters
-  const errors = {};
-  if (!id) errors.id = "ID is required";
-  if (!email) errors.email = "Email is required";
-  if (!oldPassword) errors.oldPassword = "Old password is required";
-  if (!newPassword) errors.newPassword = "New password is required";
-  if (newPassword !== confirmPassword) {
-    errors.confirmPassword = "Passwords do not match";
-  }
-
-  if (Object.keys(errors).length > 0) {
-    return res.status(400).json({ errors });
-  }
-
-  // Check if user exists
-  const user = await isUserExist(email);
-  if (!user || user.id !== id) {
-    return res.status(404).json({ message: "User does not exist" });
-  }
-
-  // Verify old password
-  const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-  if (!isPasswordValid) {
-    return res.status(401).json({ message: "Invalid old password" });
-  }
-
-  // Hash the new password
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  // Update password in the database
   try {
-    const sqlUpdate = "UPDATE employee SET password = ? WHERE id = ?";
-    await db.query(sqlUpdate, [hashedPassword, id]);
-    return res.json({ message: "Password updated successfully" });
+    const { id, email, oldPassword, newPassword, confirmPassword } = req.body;
+
+    // Validate request parameters
+    const message = {};
+
+    if (isEmptyOrNull(id)) {
+      message.id = "ID is required";
+    }
+
+    if (isEmptyOrNull(email)) {
+      message.email = "Email is required";
+    }
+
+    if (isEmptyOrNull(oldPassword)) {
+      message.oldPassword = "Old password is required";
+    }
+
+    if (isEmptyOrNull(newPassword)) {
+      message.newPassword = "New password is required";
+    } else if (newPassword !== confirmPassword) {
+      message.newPassword = "Passwords do not match";
+    }
+
+    // Check if there are validation errors
+    if (Object.keys(message).length > 0) {
+      res.status(400).json({ message: message });
+      return false;
+    }
+
+    // Check if user exists
+    const user = await isUserExist(email);
+    if (!user) {
+      return res.status(404).json({ message: "User does not exist" });
+    } else {
+      // Verify old password
+      const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: "Incorrect old password" });
+      } else {
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update password in the database
+        // try {
+        const sqlUpdate = "UPDATE employee SET password = ? WHERE email = ?";
+        const result = await db.query(sqlUpdate, [hashedPassword, email]);
+        delete user.password;
+        if (result) {
+          res.json({
+            message: "Password updated successfully",
+            profile: user,
+          });
+        }
+      }
+    }
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
@@ -254,84 +270,94 @@ const login = async (req, res) => {
 
 // upate customer
 const update = async (req, res) => {
-  const {
-    id,
-    role_id,
-    firstname,
-    lastname,
-    gender,
-    dob,
-    email,
-    tel,
-    address,
-    image,
-    is_remove_file,
-  } = req.body;
-  let filename = null;
-  if (req.file) {
-    filename = req.file.filename;
-  } else {
-    filename = image;
-  }
+  try {
+    const {
+      id,
+      role_id,
+      firstname,
+      lastname,
+      gender,
+      dob,
+      email,
+      tel,
+      address,
+      image,
+      // is_remove_file,
+    } = req.body;
+    let filename = null;
+    if (req.file) {
+      filename = req.file.filename;
+    } else {
+      filename = image;
+    }
 
-  // Move the declaration outside of the callback function
-  let sqlUpdate = `
+    // Move the declaration outside of the callback function
+    let sqlUpdate = `
     UPDATE employee 
     SET  role_id = ?, firstname = ?, lastname = ?, gender = ?, dob = ?, email = ?, tel = ?, address = ?, image = ? 
     WHERE id = ? 
   `;
-  const params = [
-    role_id,
-    firstname,
-    lastname,
-    gender,
-    dob,
-    email,
-    tel,
-    address,
-    filename,
-    id,
-  ];
-
-  // Correct the SQL syntax
-  db.query("SELECT * FROM employee WHERE id = ?", [id], (error1, result1) => {
-    if (error1) {
-      return res.json({
-        error: true,
-        message: error1,
+    const params = [
+      role_id,
+      firstname,
+      lastname,
+      gender,
+      dob,
+      email,
+      tel,
+      address,
+      filename,
+      id,
+    ];
+    const result = await db.query(sqlUpdate, params);
+    if (result) {
+      res.json({
+        message: "Update successfully",
+        data: result,
       });
     }
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+  // Correct the SQL syntax
+  // db.query("SELECT * FROM employee WHERE id = ?", [id], (error1, result1) => {
+  //   if (error1) {
+  //     return res.json({
+  //       error: true,
+  //       message: error1,
+  //     });
+  //   }
 
-    db.query(sqlUpdate, params, (error, result) => {
-      if (error) {
-        return res.json({
-          error: true,
-          message: error,
-        });
-      }
-
-      if (result.affectedRows !== 0) {
-        if (req.file || image == null) {
-          if (result1[0].image !== null && result1[0].image !== "") {
-            removeFile(result1[0].image);
-          }
-        }
-        return res.json({
-          message:
-            result.affectedRows !== 0
-              ? "Employee updated successfully!"
-              : "Employee not found!",
-          data: result,
-          is_remove_file: is_remove_file,
-        });
-      } else {
-        return res.json({
-          message: "Employee not found!",
-          data: result,
-        });
-      }
-    });
-  });
+  //   db.query(sqlUpdate, params, (error, result) => {
+  //     if (error) {
+  //       return res.json({
+  //         error: true,
+  //         message: error,
+  //       });
+  //     } else {
+  //       if (result.affectedRows !== 0) {
+  //         if (req.file || image == null) {
+  //           if (result1[0].image !== null && result1[0].image !== "") {
+  //             removeFile(result1[0].image);
+  //           }
+  //         }
+  //         return res.json({
+  //           message:
+  //             result.affectedRows !== 0
+  //               ? "Employee updated successfully!"
+  //               : "Employee not found!",
+  //           data: result,
+  //           is_remove_file: is_remove_file,
+  //         });
+  //       } else {
+  //         return res.json({
+  //           message: "Employee not found!",
+  //           data: result,
+  //         });
+  //       }
+  //     }
+  //   });
+  // });
 };
 
 // Update image
@@ -376,10 +402,18 @@ const createEmployee = async (req, res) => {
       "SELECT * FROM employee WHERE email = ?",
       [email]
     );
+    const existingTel = await db.query("SELECT * FROM employee WHERE tel = ?", [
+      tel,
+    ]);
     if (existingEmployee.length > 0) {
       // If email is already in use, return an error message
       return res.status(400).json({
         message: "Duplicate email. Please try another email.",
+      });
+    }
+    if (existingTel.length > 0) {
+      return res.status(400).json({
+        message: "Duplicate Telphone. Please try another telephone.",
       });
     }
 
@@ -403,7 +437,9 @@ const createEmployee = async (req, res) => {
     );
 
     res.json({
-      message: "Employee created successfully!",
+      message: sqlInsertEmployee.affectedRows
+        ? "Employee created successfully"
+        : "Something wrong!",
     });
   } catch (error) {
     res.status(500).json({
@@ -411,27 +447,6 @@ const createEmployee = async (req, res) => {
     });
   }
 };
-
-// const remove = async (req, res) => {
-//   try {
-//     const { id, image } = req.body;
-//     var sqlDelete = "DELETE FROM employee WHERE id = ?";
-//     var param = [id];
-//     const results = await db.query(sqlDelete, param);
-//     if (results.affectedRows !== 0) {
-//       removeFile(image);
-//     }
-//     res.json({
-//       message:
-//         results.affectedRows != 0 ? "Remove sucess!" : "Employee not found!",
-//       data: results,
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       message: error.message,
-//     });
-//   }
-// };
 
 const remove = (req, res) => {
   const { id, image } = req.body;
@@ -444,7 +459,9 @@ const remove = (req, res) => {
       }
       res.json({
         message:
-          rows.affectedRows != 0 ? "Employee removed successfully!" : "Employee not found!",
+          rows.affectedRows != 0
+            ? "Employee removed successfully!"
+            : "Employee not found!",
         data: rows,
       });
     } else {
