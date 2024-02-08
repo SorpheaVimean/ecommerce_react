@@ -105,7 +105,8 @@ const AdminLayout = () => {
     {
       key: "3",
       icon: <UploadOutlined />,
-      label: "nav 3",
+      label: "Customer",
+      onClick: () => onLinkPage("customer"),
     },
   ];
   // dropdown of profile

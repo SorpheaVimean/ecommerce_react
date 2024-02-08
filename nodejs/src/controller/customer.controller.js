@@ -1,20 +1,83 @@
 const db = require("../util/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { TOKEN_KEY } = require("../util/helper");
+const {
+  TOKEN_KEY,
+  REFRESH_KEY,
+  removeFile,
+  isEmptyOrNull,
+} = require("../util/helper");
 const { getPermissionUser } = require("./auth.controller");
 //getAll
+// const getAll = async (req, res) => {
+//   try {
+//     const sql = `
+//      SELECT * FROM customer
+//     `;
+
+//     const result = await db.query(sql);
+
+//     // Assuming the result is an array of rows from the database
+//     res.json(result);
+//   } catch (error) {
+//     res.status(500).send({
+//       message: error.message,
+//     });
+//   }
+// };
+// const getParam = (value) => {
+//   if (value == "" || value == "null" || value == "undefined") {
+//     return null;
+//   }
+//   return value;
+// };
 const getAll = async (req, res) => {
   try {
-    const sql = `
-     SELECT * FROM customer
-    `;
+    const { page, txtSearch,} = req.query;
 
-    const result = await db.query(sql);
+    var param = []; 
+    var limitItem = 7;
+    var offset = (page - 1) * limitItem;
+    if (isNaN(offset)) {
+      offset = 0; // Set a default value of 0 if the offset is not a valid number
+    }
+    var select = "SELECT c.*, r.name as role_name ";
+    var join =
+      " FROM customer c " + " INNER JOIN role r ON (c.role_id = r.id) ";
+      var where = "  ";
 
-    // Assuming the result is an array of rows from the database
-    res.json(result);
+      if (!isEmptyOrNull(txtSearch)) {
+        where += " AND (c.id = ? OR c.firstname LIKE ? OR c.lastname LIKE ?) "; // Parentheses added for OR conditions
+        param.push(txtSearch);
+         param.push(txtSearch); 
+        param.push("%" + txtSearch + "%");
+        param.push("%" + txtSearch + "%");
+      }
+      
+      // if (!isEmptyOrNull(customerStatus)) {
+      //   where += " AND c.is_active = ? "; 
+      //   param.push(customerStatus);
+      // }
+      
+    var order = " ORDER BY c.id DESC ";
+    var limit = " LIMIT " + limitItem + " OFFSET " + offset + "";
+
+    var sql = select + join + where + order + limit;
+    const list = await db.query(sql, param);
+
+    var selectTotal = " SELECT COUNT(c.id) as total";
+    var sqlTotal = selectTotal + join + where;
+    const totalRecord = await db.query(sqlTotal, param);
+
+
+    res.json({
+      list: list,
+      totalRecord: totalRecord, // Access the total count from the first row
+      bodyData: req.body,
+      queryData: req.query,
+    });
   } catch (error) {
+    console.log(error);
     res.status(500).send({
       message: error.message,
     });
@@ -25,17 +88,17 @@ const updatePassword = async (req, res) => {
   const { id, email, oldPassword, newPassword, confirmPassword } = req.body;
 
   // Validate request parameters
-  const errors = {};
-  if (!id) errors.id = "ID is required";
-  if (!email) errors.email = "Email is required";
-  if (!oldPassword) errors.oldPassword = "Old password is required";
-  if (!newPassword) errors.newPassword = "New password is required";
+  const message = {};
+  if (!id) message.id = "ID is required";
+  if (!email) message.email = "Email is required";
+  if (!oldPassword) message.oldPassword = "Old password is required";
+  if (!newPassword) message.newPassword = "New password is required";
   if (newPassword !== confirmPassword) {
-    errors.confirmPassword = "Passwords do not match";
+    message.confirmPassword = "Passwords do not match";
   }
 
-  if (Object.keys(errors).length > 0) {
-    return res.status(400).json({ errors });
+  if (Object.keys(message).length > 0) {
+    return res.status(400).json({ message });
   }
 
   // Check if user exists
@@ -92,12 +155,11 @@ const login = async (req, res) => {
     return res.json({ message: "User or password are incorrect!" });
   }
 
- 
   delete user.password;
 
   const obj = {
     user,
-    permission:[],
+    permission: [],
     token: "", // generate token JWT
   };
 
@@ -114,53 +176,46 @@ const login = async (req, res) => {
 
 // upate customer
 const update = async (req, res) => {
-  const { id, firstName, lastName, gender, dob, email, tel } = req.body;
+  try {
+  const { id, firstname, lastname, gender, dob, email, tel, address, is_active, image } = req.body;
   var filename = null;
   if (req.file) {
     filename = req.file.filename;
+  } else {
+    filename = image;
   }
   var slqUpdate = `
   UPDATE customer 
-  SET  firstName = ?, lastName = ?, gender = ?, dob = ?, email = ?, tel = ?, profile = ? WHERE id = ? 
+  SET  firstname = ?, lastname = ?, gender = ?, dob = ?, email = ?, tel = ?, address = ?, is_active = ?, image = ? WHERE id = ? 
   `;
-  const params = [firstName, lastName, gender, dob, email, tel, filename, id];
-  const data = await db.query(slqUpdate, params, (err, result) => {
-    if (!err) {
+  const params = [firstname, lastname, gender, dob, email, tel, address, is_active, filename, id];
+  const data = await db.query(slqUpdate, params);
+    if (data) {
       res.json({
-        message: result.affectedRows
-          ? "Update successfully!"
-          : "Data not in system!",
-        data: result,
+        message:  "Customer updated successfully!",
+        data: data,
       });
-    } else {
-      res.json({
-        error: true,
-        message: err,
-      });
-    }
-  });
+    } 
+  
+} catch (error) {
+  res.status(500).send({ message: error.message });
+}
 };
-// Update image
-const updateImg = async (req, res) => {
-  const { id } = req.body;
 
-  var filename = null;
-  if (req.file) {
-    filename = req.file.filename;
-  }
-
-  var sqlUpdateImage = "UPDATE customer SET profile = ? WHERE id = ?"; // Adjust WHERE clause based on your schema
-  const data = await db.query(sqlUpdateImage, [filename, id]); // Assuming req.userId contains the user ID
-
-  res.json({
-    message: "Image update successful!",
-  });
-};
 
 // insert
 const createCustomer = async (req, res) => {
-  const {  firstName, lastName, gender, dob, email, tel, password } =
-    req.body;
+  const {
+    firstname,
+    lastname,
+    gender,
+    dob,
+    email,
+    tel,
+    address,
+    password,
+    is_active,
+  } = req.body;
   var filename = null;
   if (req.file) {
     filename = req.file.filename;
@@ -168,36 +223,44 @@ const createCustomer = async (req, res) => {
 
   try {
     // Check if email is already in use
-    const existingCustomer = await db.query(
+    const existingEmployee = await db.query(
       "SELECT * FROM customer WHERE email = ?",
       [email]
     );
-
-    if (existingCustomer.length > 0) {
+    const existingTel = await db.query("SELECT * FROM customer WHERE tel = ?", [
+      tel,
+    ]);
+    if (existingEmployee.length > 0) {
       // If email is already in use, return an error message
       return res.status(400).json({
         message: "Duplicate email. Please try another email.",
+      });
+    }
+    if (existingTel.length > 0) {
+      return res.status(400).json({
+        message: "Duplicate Telphone. Please try another telephone.",
       });
     }
 
     //hash password
     const bcryptPassword = await bcrypt.hashSync(password, 10);
     const sqlInsertCustomer = await db.query(
-      "INSERT INTO customer ( firstName, lastName, gender, dob, email, tel, password, profile) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO customer (  firstname, lastname, gender, dob, email, tel, address, password, is_active, image) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
-       
-        firstName,
-        lastName,
+        firstname,
+        lastname,
         gender,
         dob,
         email,
         tel,
+        address,
         bcryptPassword,
+        is_active,
         filename,
       ]
     );
     res.json({
-      message: "Insert customer successfully!",
+      message: "Customer Created successfully!",
     });
   } catch (error) {
     console.error(error);
@@ -207,26 +270,49 @@ const createCustomer = async (req, res) => {
   }
 };
 
-const remove = async (req, res) => {
-  try {
-    const { id } = req.params;
-    var sqlDelete = "DELETE FROM customer WHERE id = ?";
-    var param = [id];
-    const data = await db.query(sqlDelete, param);
-    res.json({
-      message: data.affectedRows != 0 ? "Remove sucess!" : "Not found!",
-    });
-  } catch (error) {
-    res.status(500).send({
-      message: error.message,
-    });
-  }
+// const remove = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     var sqlDelete = "DELETE FROM customer WHERE id = ?";
+//     var param = [id];
+//     const data = await db.query(sqlDelete, param);
+//     res.json({
+//       message: data.affectedRows != 0 ? "Remove sucess!" : "Not found!",
+//     });
+//   } catch (error) {
+//     res.status(500).send({
+//       message: error.message,
+//     });
+//   }
+// };
+const remove = (req, res) => {
+  const { id, image } = req.body;
+  var sql = "DELETE FROM customer WHERE id = ?";
+  var param = [id];
+  db.query(sql, param, (error, rows) => {
+    if (!error) {
+      if (rows.affectedRows != 0) {
+        removeFile(image);
+      }
+      res.json({
+        message:
+          rows.affectedRows != 0
+            ? "custoomer removed successfully!"
+            : "customer not found!",
+        data: rows,
+      });
+    } else {
+      res.json({
+        error: true,
+        message: error,
+      });
+    }
+  });
 };
 module.exports = {
   getAll,
   update,
   updatePassword,
-  updateImg,
   createCustomer,
   remove,
   login,

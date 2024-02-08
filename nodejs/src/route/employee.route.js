@@ -25,10 +25,6 @@ const employee = (app) => {
     controller.createEmployee
   );
   // app.put("/api/customer", controller.login);
-  app.delete(
-    "/api/employee/",
-    userGuard("employee.Delete"),
-    controller.remove
-  );
+  app.delete("/api/employee/", userGuard("employee.Delete"), controller.remove);
 };
 module.exports = employee;

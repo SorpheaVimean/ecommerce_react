@@ -21,6 +21,7 @@ import LoginPage from "./pages/login/LoginPage";
 import SignUpPage from "./pages/signUp/SignUpPage";
 import ErrorPage from "./components/error/ErrorPage";
 import AdminLayout from "./components/layout/AdminLayout";
+import Customer from "./components/admin/customers/Customer";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="" element={<DashBoard />} />
           <Route path="employee" element={<Employee />} />
+          <Route path="customer" element={<Customer />} />
           <Route path="profile" element={<ProfilePage />} />
 
         </Route>
