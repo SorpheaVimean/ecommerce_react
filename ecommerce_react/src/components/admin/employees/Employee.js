@@ -682,7 +682,6 @@ const EmplyeePage = () => {
 
           <Form.Item wrapperCol={24} style={{ textAlign: "right" }}>
             <Space>
-              == 
               <Button htmlType="button" onClick={onClearForm}>
                 Clear
               </Button>

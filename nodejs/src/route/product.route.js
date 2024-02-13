@@ -15,12 +15,12 @@ const product = (app) => {
   );
   app.put(
     "/api/product",
-    upload.array("update_product", 5),
+    upload.array("image_product", 5),
     userGuard("product.Update"),
     controller.update
   );
   app.delete(
-    "/api/product/:id",
+    "/api/product/",
     userGuard("product.Delete"),
     controller.remove
   );

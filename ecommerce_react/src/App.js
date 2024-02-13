@@ -14,6 +14,17 @@ import CartPage from "./pages/shopping_cart/CartPage";
 import DashBoard from "./components/admin/dashboard/DashBoard";
 import Employee from "./components/admin/employees/Employee";
 import ProfilePage from "./components/admin/profile/ProfilePage";
+import Product from "./components/admin/products/Product";
+import Customer from "./components/admin/customers/Customer";
+import Role from "./components/admin/role/Role";
+import RolePermission from "./components/admin/role/RolePermission";
+import Permission from "./components/admin/role/Permission";
+import Brand from "./components/admin/products/Brand";
+import Category from "./components/admin/products/Category";
+import Order from "./components/admin/orders/Order";
+import OrderStatus from "./components/admin/orders/OrderStatus";
+import PaymentMethod from "./components/admin/orders/PaymentMethod";
+
 
 //Route Login and Logout Layout
 import LoginLayout from "../src/components/layout/LoginAndSigninLayout";
@@ -21,7 +32,9 @@ import LoginPage from "./pages/login/LoginPage";
 import SignUpPage from "./pages/signUp/SignUpPage";
 import ErrorPage from "./components/error/ErrorPage";
 import AdminLayout from "./components/layout/AdminLayout";
-import Customer from "./components/admin/customers/Customer";
+import CustomerAddress from "./components/admin/customers/CustomerAddress";
+
+
 
 function App() {
   return (
@@ -37,12 +50,25 @@ function App() {
           <Route path="quickView" element={<QuickView />} />
           <Route path="cart" element={<CartPage />} />
         </Route>
+
         {/* Admin Layout */}
         <Route path="/admin" element={<AdminLayout />}>
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="" element={<DashBoard />} />
           <Route path="employee" element={<Employee />} />
           <Route path="customer" element={<Customer />} />
-          <Route path="profile" element={<ProfilePage />} />
+          <Route path="customerAddress" element={<CustomerAddress />} />
+          <Route path="product" element={<Product />} />
+          <Route path="brand" element={<Brand />} />
+          <Route path="category" element={<Category />} />
+          <Route path="role" element={<Role />} />
+          <Route path="rolePermission" element={<RolePermission />} />
+          <Route path="permission" element={<Permission />} />
+          <Route path="order" element={<Order />} />
+          <Route path="orderStatus" element={<OrderStatus />} />
+          <Route path="paymentmethod" element={<PaymentMethod />} />
+
+          
 
         </Route>
 

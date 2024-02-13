@@ -6,14 +6,10 @@ const {
   REFRESH_KEY,
   removeFile,
   isEmptyOrNull,
+  getParam,
 } = require("../util/helper");
 const { getPermissionUser } = require("./auth.controller");
-const getParam = (value) => {
-  if (value == "" || value == "null" || value == "undefined") {
-    return null;
-  }
-  return value;
-};
+
 //getAll
 // const getAll = async (req, res) => {
 //   try {

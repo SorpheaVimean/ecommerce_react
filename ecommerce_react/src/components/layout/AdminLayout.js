@@ -62,11 +62,11 @@ const AdminLayout = () => {
     // const { oldPassword, newPassword, confirmPassword } = value;
     // const { id, email } = user;
     const params = {
-      "id": user.id,
-      "email": user.email,
-      "oldPassword": value.oldPassword,
-      "newPassword": value.newPassword,
-      "confirmPassword": value.confirmPassword,
+      id: user.id,
+      email: user.email,
+      oldPassword: value.oldPassword,
+      newPassword: value.newPassword,
+      confirmPassword: value.confirmPassword,
     };
     const res = await request("employee/setPassword", "POST", params);
     if (res) {
@@ -89,6 +89,27 @@ const AdminLayout = () => {
   }
 
   // Siderbar menu
+
+  // function getItem(label, key, icon, children, onClick) {
+  //   return {
+  //     key,
+  //     icon,
+  //     children,
+  //     label,
+  //     onClick
+  //   };
+  // }
+  // const sidebar = [
+  //   getItem('Option 1', '1', <MdOutlineDashboard />,  onClick: () => onLinkPage("/admin"),),
+  //   getItem('Option 2', '2', <VideoCameraOutlined />),
+  //   getItem('User', 'sub1', <UserOutlined />, [
+  //     getItem('Tom', '3'),
+  //     getItem('Bill', '4'),
+  //     getItem('Alex', '5'),
+  //   ]),
+  //   getItem('Team', 'sub2', <UploadOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+  //   getItem('Files', '9', <UploadOutlined />),
+  // ];
   const sidebar = [
     {
       key: "1",
@@ -103,10 +124,44 @@ const AdminLayout = () => {
       onClick: () => onLinkPage("employee"),
     },
     {
-      key: "3",
+      key: "Customer",
       icon: <UploadOutlined />,
-      label: "Customer",
-      onClick: () => onLinkPage("customer"),
+      label: "Customers",
+      
+      children: [
+        { key: "3", label: "List Customers", onClick: () => onLinkPage("customer")},
+        { key: "4", label: "Customer Address", onClick: () => onLinkPage("customerAddress")},
+      ]
+    },
+    {
+      key: "product",
+      icon: <UploadOutlined />,
+      label: "Products", 
+      children: [
+        { key: "5", label: "List Products",  onClick: () => onLinkPage("product"),},
+        { key: "6", label: "Brands", onClick: () => onLinkPage("brand")},
+        { key: "7", label: "Categories", onClick: () => onLinkPage("category")},
+      ]
+    },
+    {
+      key: "Roles",
+      icon: <UserOutlined />,
+      label: "Role",
+      children: [
+        { key: "8", label: "List Roles", onClick: () => onLinkPage("role") },
+        { key: "9", label: "Role Permission", onClick: () => onLinkPage("rolePermission") },
+        { key: "10", label: "Permission", onClick: () => onLinkPage("permission") },
+      ],
+    },
+    {
+      key: "Orders",
+      icon: <UserOutlined />,
+      label: "Orders",
+      children: [
+        { key: "11", label: "List Orders", onClick: () => onLinkPage("order") },
+        { key: "12", label: "Order Status", onClick: () => onLinkPage("orderStatus") },
+        { key: "13", label: "Payment Menthod", onClick: () => onLinkPage("paymentmethod") },
+      ],
     },
   ];
   // dropdown of profile
@@ -168,8 +223,8 @@ const AdminLayout = () => {
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
-          mode="inline"
           defaultSelectedKeys={["1"]}
+          mode="inline"
           items={sidebar}
         />
       </Sider>

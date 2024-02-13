@@ -47,7 +47,7 @@ const layout = {
 const Customer = () => {
   const [form] = Form.useForm();
   const [list, setList] = useState([]);
-//   const [role, setRole] = useState([]);
+  //   const [role, setRole] = useState([]);
 
   const [totalRecord, setTotalRecord] = useState(0);
 
@@ -355,7 +355,7 @@ const Customer = () => {
                 }}
               />
 
-              <Select
+              {/* <Select
                 value={customerStatus}
                 placeholder="Filter by status "
                 className="w-40 "
@@ -369,22 +369,22 @@ const Customer = () => {
               >
                 <Option value={"1"}>Actived</Option>
                 <Option value={"2"}>Inactive</Option>
-              </Select>
-              <Select
-                            value={customerStatus}
-                            placeholder="Status"
-                            style={{width:120}}
-                            allowClear
-                            onChange={(value)=>{
-                                setObjFilter({
-                                    ...objFilter,
-                                    customerStatus:value
-                                })
-                            }}
-                        >
-                            <Option  value={"1"}>Actived</Option>
-                            <Option  value={"0"}>Disabled</Option>
-                        </Select>
+              </Select> */}
+              {/* <Select
+                value={customerStatus}
+                placeholder="Status"
+                style={{ width: 120 }}
+                allowClear
+                onChange={(value) => {
+                  setObjFilter({
+                    ...objFilter,
+                    customerStatus: value,
+                  });
+                }}
+              >
+                <Option value={"1"}>Actived</Option>
+                <Option value={"0"}>Disabled</Option>
+              </Select> */}
             </Space>
           </div>
           <div className="">

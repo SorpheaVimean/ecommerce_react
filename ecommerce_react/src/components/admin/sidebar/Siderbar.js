@@ -43,8 +43,7 @@ const Siderbar = () => {
           items={[
             {
               key: "1",
-              icon: <MdOutlineDashboard />
-              ,
+              icon: <MdOutlineDashboard />,
               label: "Home",
               onClick: () => onLinkPage("DashBoard"),
             },
