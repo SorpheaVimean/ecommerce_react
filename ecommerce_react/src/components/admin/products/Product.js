@@ -31,6 +31,7 @@ import {
 } from "@ant-design/icons";
 import moment from "moment";
 import MainPage from "../../layout/MainPage";
+import { Btncompo } from "../../buttons/Buttons";
 
 const { Option } = Select;
 const layout = {
@@ -142,7 +143,6 @@ const Product = () => {
     formData.append("image3", form.getFieldValue("image3"));
     formData.append("image4", form.getFieldValue("image4"));
     formData.append("image5", form.getFieldValue("image5"));
-   
 
     // Append new image files if selected
     if (image1 != null) {
@@ -455,7 +455,7 @@ const Product = () => {
     {
       key: "Actoin",
       title: "Action",
-
+      width: 200,
       render: (value, item, index) => {
         return (
           <div key={index}>
@@ -550,13 +550,12 @@ const Product = () => {
           </div>
           <div className="">
             {isPersmission("employee.Create") && (
-              <button
-                className="bg-BgBtn hover:bg-BgBtnHover text-white px-1 py-3 rounded-lg mt-2"
+              <Btncompo
+                type="primary"
+                label="Create Product"
+                icon={<PlusCircleOutlined className="mr-4 text-lg" />}
                 onClick={onNewEmplyee}
-              >
-                <PlusCircleOutlined className="mr-3 text-lg" />
-                Create Product
-              </button>
+              />
             )}
           </div>
         </div>

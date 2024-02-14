@@ -2,10 +2,53 @@ const db = require("../util/db");
 const { isEmptyOrNull, removeFile } = require("../util/helper");
 
 const getAll = async (req, res) => {
-  const sql = await db.query("SELECT * FROM payment_methode");
+  try{
+  const { page, txtSearch, status } = req.query;
+  var param = [];
+  var limitItem = 7;
+  var offset = (page - 1) * limitItem;
+  if (isNaN(offset)) {
+    offset = 0; // Set a default value of 0 if the offset is not a valid number
+  }
+
+  var select = "SELECT * FROM payment_methode";
+  var where = "";
+  if (!isEmptyOrNull(txtSearch)) {
+    where = " WHERE id = ? OR name LIKE ? OR code LIKE ? ";
+    param.push(txtSearch);
+    param.push("%" + txtSearch + "%");
+    param.push("%" + txtSearch + "%");
+  }
+  if (!isEmptyOrNull(status)) {
+    if (where === "") {
+      where = " WHERE status = ?";
+    } else {
+      where += " AND status = ?";
+    }
+    
+    param.push(status);
+  }
+  var order = " ORDER BY id DESC ";
+  var limit = " LIMIT " + limitItem + " OFFSET " + offset + "";
+  var sql = select + where + order + limit;
+  const list = await db.query(sql, param);
+
+  var selectTotal = "SELECT COUNT(id) as total FROM payment_methode";
+  var sqlTotal = selectTotal + where;
+  const totalRecord = await db.query(sqlTotal, param);
   res.json({
-    list: sql,
+    list: list,
+    totalRecord: totalRecord,
+    bodyData: req.body,
+    queryData: req.query,
   });
+} catch (e) {
+  console.log(e);
+  res.status(500).send({
+    message: e.message,
+    error: e,
+  });
+}
 };
 
 const create = async (req, res) => {

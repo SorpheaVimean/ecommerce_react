@@ -1,18 +1,20 @@
 import PropTypes from "prop-types";
-export const Button = ({ label, type, onClick }) => {
+
+export const Btncompo = ({ label, type, onClick, icon }) => {
   const buttonClasses =
     type === "primary"
-      ? "w-[199px] h-[51px] px-[21.26px] py-[12.76px] bg-green-500 rounded-lg shadow justify-center items-center gap-[8.51px] inline-flex"
-      : "w-[199px] h-[51px] px-[21.26px] py-[12.76px] bg-green-200 rounded-lg shadow justify-center items-center gap-[8.51px] inline-flex";
-
+      ? "bg-BgBtn hover:bg-BgBtnHover text-white  py-3 rounded-lg mt-2 px-4"
+      : "   border border-dashed border-BgBtn hover:bg-BgBtn hover:text-white duration-300 text-black  py-3 rounded-lg mt-2 px-4";
+      
   return (
     <button className={buttonClasses} onClick={onClick}>
+      {icon}
       {label}
     </button>
   );
 };
 
-Button.propTypes = {
+Btncompo.propTypes = {
   label: PropTypes.string.isRequired,
   type: PropTypes.oneOf(["primary", "secondary"]).isRequired,
   onClick: PropTypes.func,

@@ -33,6 +33,7 @@ import {
 } from "@ant-design/icons";
 import moment from "moment";
 import MainPage from "../../layout/MainPage";
+import { Btncompo } from "../../buttons/Buttons";
 
 const { Option } = Select;
 const layout = {
@@ -389,13 +390,12 @@ const Customer = () => {
           </div>
           <div className="">
             {isPersmission("customer.Create") && (
-              <button
-                className="bg-BgBtn hover:bg-BgBtnHover text-white px-1 py-3 rounded-lg mt-2"
-                onClick={onNewEmplyee}
-              >
-                <PlusCircleOutlined className="mr-3 text-lg" />
-                Create Customer
-              </button>
+              <Btncompo
+              type="primary"
+              label="Create Customer"
+              icon={<PlusCircleOutlined className="mr-4 text-lg" />}
+              onClick={onNewEmplyee}
+            />
             )}
           </div>
         </div>
