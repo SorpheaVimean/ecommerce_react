@@ -34,9 +34,23 @@ export const request = (url, method, param, new_token = null, data = {}) => {
       } else if (status === 401) {
         logout();
       } else if (status === 500) {
-        message.error(error.response.data.message);
+        // message.error(error.response.data.message);
+        if (error.response.data.message && typeof error.response.data.message === "object") {
+          Object.values(error.response.data.message).forEach((msg) => {
+            message.error(msg);
+          });
+        } else {
+          message.error(error.response.data.message);
+        }
       } else {
-        message.error(error.response.data.message);
+        // message.error(error.response.data.message);
+        if (error.response.data.message && typeof error.response.data.message === "object") {
+          Object.values(error.response.data.message).forEach((msg) => {
+            message.error(msg);
+          });
+        } else {
+          message.error(error.response.data.message);
+        }
       }
       return false;
     })

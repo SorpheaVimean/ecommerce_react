@@ -101,25 +101,25 @@ const updatePassword = async (req, res) => {
     return res.status(400).json({ message });
   }
 
-  // Check if user exists
-  const user = await isUserExist(email);
-  if (!user || user.id !== id) {
-    return res.status(404).json({ message: "User does not exist" });
-  }
-
-  // Verify old password
-  const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-  if (!isPasswordValid) {
-    return res.status(401).json({ message: "Invalid old password" });
-  }
+     // Check if user exists
+     const user = await isUserExist(email);
+     if (!user) {
+       return res.status(404).json({ message: "User does not exist" });
+     }
+ 
+     // Verify old password
+     const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+     if (!isPasswordValid) {
+       return res.status(400).json({ message: "Incorrect old password" });
+     }
 
   // Hash the new password
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
   // Update password in the database
   try {
-    const sqlUpdate = "UPDATE customer SET password = ? WHERE id = ?";
-    await db.query(sqlUpdate, [hashedPassword, id]);
+    const sqlUpdate = "UPDATE customer SET password = ? WHERE id = ? AND email = ?";
+    await db.query(sqlUpdate, [hashedPassword, id, email]);
     return res.json({ message: "Password updated successfully" });
   } catch (error) {
     console.error(error);
@@ -139,7 +139,42 @@ const isUserExist = async (email) => {
   }
 };
 
+// const login = async (req, res) => {
+//   const { email, password } = req.body;
+//   const message = {};
+
+//   if (!email) message.email = "Please enter a valid email";
+//   if (!password) message.password = "Please enter a valid password";
+
+//   if (Object.keys(message).length > 0) {
+//     return res.status(400).json({ message });
+//   }
+
+//   const user = await isUserExist(email);
+//   if (!user || !(await bcrypt.compareSync(password, user.password))) {
+//     return res.status(400).json({ message: "User or password are incorrect!" });
+//   }
+
+//   delete user.password;
+
+//   const obj = {
+//     user,
+//     permission: [],
+//     token: "", // generate token JWT
+//   };
+
+//   const access_token = jwt.sign({ data: obj }, TOKEN_KEY);
+//   const refresh_token = jwt.sign({ data: obj }, REFRESH_KEY);
+
+//   res.json({
+//     message: "Login success!",
+//     ...obj,
+//     access_token,
+//     refresh_token,
+//   });
+// };
 const login = async (req, res) => {
+  try{
   const { email, password } = req.body;
   const message = {};
 
@@ -147,33 +182,40 @@ const login = async (req, res) => {
   if (!password) message.password = "Please enter a valid password";
 
   if (Object.keys(message).length > 0) {
-    return res.json({ message });
+    return res.status(400).json({ message });
   }
 
   const user = await isUserExist(email);
   if (!user || !(await bcrypt.compareSync(password, user.password))) {
-    return res.json({ message: "User or password are incorrect!" });
+    return res.status(400).json({ message: "User or password are incorrect!" });
   }
 
+  const permission = await getPermissionUser(user.id);
   delete user.password;
 
   const obj = {
     user,
-    permission: [],
-    token: "", // generate token JWT
+    permission,
+    // token: "", // generate token JWT
   };
 
   const access_token = jwt.sign({ data: obj }, TOKEN_KEY);
   const refresh_token = jwt.sign({ data: obj }, REFRESH_KEY);
 
   res.json({
+    isSuccess: user ? true : false,
+    // user: user,
     message: "Login success!",
     ...obj,
     access_token,
     refresh_token,
   });
+} catch (error) {
+  res.status(500).json({
+    message: error.message,
+  });
+}
 };
-
 // upate customer
 const update = async (req, res) => {
   try {

@@ -17,9 +17,11 @@ const getAll = async (req, res) => {
     const { page, txtSearch, categoryId, productStatus } = req.query;
 
     var param = [getParam(categoryId)];
-    var limitItem = 7;
+    var limitItem = 2;
     var offset = (page - 1) * limitItem;
-
+    if (isNaN(offset)) {
+      offset = 0;
+    }
     var select = "SELECT p.*, c.name as category_name ";
     var join =
       " FROM product p " + " INNER JOIN category c ON (p.category_id = c.id) ";
@@ -44,15 +46,17 @@ const getAll = async (req, res) => {
       " SELECT COUNT(p.id) as total, SUM(quantity) as totalQty ";
     var sqlTotal = selectTotal + join + where;
     const totalRecord = await db.query(sqlTotal, param);
-
-
     var sqlCategory = "SELECT * FROM category";
     const category = await db.query(sqlCategory);
+    const pStock = await db.query(
+      "SELECT SUM(quantity) as quantity FROM product"
+    );
 
     res.json({
       list: list,
       totalRecord: totalRecord,
       list_category: category,
+      pStock: pStock,
       bodyData: req.body,
       queryData: req.query,
     });
@@ -64,6 +68,28 @@ const getAll = async (req, res) => {
     });
   }
 };
+const getProductById = async (req, res) => {
+  const { id } = req.params;
+  const productQuery = `
+    SELECT p.*, c.name AS CName
+    FROM product p
+    INNER JOIN category c ON p.category_id = c.id
+    WHERE p.id = ?
+  `;
+
+  try {
+    const [product] = await db.query(productQuery, [id]);
+    if (product) {
+      res.json({ list: [product] });
+    } else {
+      res.status(404).json({ error: "Product not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // const getAll = async (req, res) => {
 //   const pageSize = 3;
 //   try {
@@ -259,10 +285,11 @@ const create = async (req, res) => {
 //   });
 // };
 const update = async (req, res) => {
-  const { id, category_id, name, description, quantity, price, status} = req.body;
+  const { id, category_id, name, description, quantity, price, status } =
+    req.body;
   const images = req.files.map((file) => file.filename);
   // let images = [];
-  
+
   // // / Check each image field individually
   // const imageFields = ['image_1', 'image_2', 'image_3', 'image_4', 'image_5'];
   // for (const field of imageFields) {
@@ -290,16 +317,16 @@ const update = async (req, res) => {
     ...images.slice(0, 5),
     ...Array(5 - images.length).fill(null),
     status,
-    id // Add the id of the product to update
+    id, // Add the id of the product to update
   ];
 
   try {
     const data = await db.query(sqlUpdate, params);
     res.json({
       message:
-      data.affectedRows != 0
-        ? "product removed successfully!"
-        : "product not found!",
+        data.affectedRows != 0
+          ? "product removed successfully!"
+          : "product not found!",
       data: data,
     });
   } catch (error) {
@@ -524,6 +551,7 @@ const remove = (req, res) => {
 module.exports = {
   getAll,
   getOne,
+  getProductById,
   getLatest,
   create,
   update,

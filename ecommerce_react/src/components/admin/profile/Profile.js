@@ -15,17 +15,20 @@ import {
   Select,
   Space,
 
+  Tag,
+
   message,
 } from "antd";
 import {
 
   DeleteOutlined,
-  PlusCircleOutlined,
+  EditOutlined,
   PlusOutlined,
 
 } from "@ant-design/icons";
 import { configImage, formatDateClient, formatDateServer, getUser } from '../../../share/help';
 import moment from "moment";
+import { Btncompo } from "../../buttons/Buttons";
 const layout = {
   labelCol: {
     span: 8,
@@ -35,7 +38,7 @@ const layout = {
   },
 };
 const { Option } = Select;
-const ProfilePage = () => {
+const Profile = () => {
   const user = getUser();
   
 
@@ -66,16 +69,20 @@ const ProfilePage = () => {
   const onFinish = async (values) => {
     const formatdob = formatDateServer(values.dob);
     var formData = new FormData(); 
+    formData.append("role_id", user.role_id);
     formData.append("firstname", values.firstname);
     formData.append("lastname", values.lastname);
     formData.append("gender", values.gender);
     formData.append("dob", formatdob);
+    formData.append("email", user.email);
     formData.append("tel", values.tel);
     formData.append("address", values.address);
     formData.append("image", form.getFieldValue("image"));
     if (image != null) {
       formData.append("img_employee", image, image.filename);
     } 
+    formData.append("id", user.id);
+    console.log("valeuuuu",  user.id)
     setLoadin(true);
     const res = await request("employee", "PUT", formData);
     setLoadin(false);
@@ -83,7 +90,7 @@ const ProfilePage = () => {
       message.success(res.message);
       form.resetFields();
       onCloseModal();
-      
+      window.location.href = "/login";
     }
     console.log(values);
   };
@@ -189,8 +196,8 @@ const ProfilePage = () => {
   ];
   return (
     <div>
-      <h1 className="text-5xl mb-5 text-center">Profile</h1>
-      <div className="flex gap-40 mt-20">
+      <h1 className="text-5xl  text-center">Profile</h1>
+      <div className="flex gap-40 mt-5">
       <Descriptions bordered column={1} items={items} className='w-1/2' />
       <div className="flex justify-center items-center">
         <Image
@@ -203,13 +210,12 @@ const ProfilePage = () => {
       </div>
       
       </div>
-      <button
-                className="bg-BgBtn hover:bg-BgBtnHover text-white px-1 py-3 rounded-lg mt-2"
-                onClick={onClickEdit}
-              >
-             
-                Update Profile
-              </button>
+              <Btncompo
+              type="primary"
+              label="Update Profile"
+              icon={<EditOutlined className="mr-4 text-lg" />}
+              onClick={onClickEdit}
+            />
       <Modal
         open={visible}
         title="Update Employee"
@@ -225,6 +231,10 @@ const ProfilePage = () => {
           onFinish={onFinish}
         >
           <Divider />
+          <div className="text-center">
+            <Tag color="red">Noted</Tag>After you update your profile this will be log out automatically</div>
+          <Divider />
+
           <Row gutter={5}>
             <Col span={12}>
               <Form.Item
@@ -394,4 +404,4 @@ const ProfilePage = () => {
   )
 }
 
-export default ProfilePage
+export default Profile

@@ -104,66 +104,50 @@ const getAll = async (req, res) => {
 const updatePassword = async (req, res) => {
   try {
     const { id, email, oldPassword, newPassword, confirmPassword } = req.body;
-
-    // Validate request parameters
+    
+    // Validation
     const message = {};
+    if (!id) message.id = "ID is required";
+    if (!email) message.email = "Email is required";
+    if (!oldPassword) message.oldPassword = "Old password is required";
+    if (!newPassword) message.newPassword = "New password is required";
+    if (newPassword !== confirmPassword) message.newPassword = "Passwords do not match";
 
-    if (isEmptyOrNull(id)) {
-      message.id = "ID is required";
-    }
-
-    if (isEmptyOrNull(email)) {
-      message.email = "Email is required";
-    }
-
-    if (isEmptyOrNull(oldPassword)) {
-      message.oldPassword = "Old password is required";
-    }
-
-    if (isEmptyOrNull(newPassword)) {
-      message.newPassword = "New password is required";
-    } else if (newPassword !== confirmPassword) {
-      message.newPassword = "Passwords do not match";
-    }
-
-    // Check if there are validation errors
     if (Object.keys(message).length > 0) {
-      res.status(400).json({ message: message });
-      return false;
+      return res.status(400).json({ message: message });
     }
 
     // Check if user exists
     const user = await isUserExist(email);
     if (!user) {
       return res.status(404).json({ message: "User does not exist" });
-    } else {
-      // Verify old password
-      const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-      if (!isPasswordValid) {
-        return res.status(400).json({ message: "Incorrect old password" });
-      } else {
-        // Hash the new password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+    }
 
-        // Update password in the database
-        // try {
-        const sqlUpdate = "UPDATE employee SET password = ? WHERE email = ?";
-        const result = await db.query(sqlUpdate, [hashedPassword, email]);
-        delete user.password;
-        if (result) {
-          res.json({
-            message: "Password updated successfully",
-            profile: user,
-          });
-        }
-      }
+    // Verify old password
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Incorrect old password" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password in the database
+    const sqlUpdate = "UPDATE employee SET password = ? WHERE email = ?";
+    const result = await db.query(sqlUpdate, [hashedPassword, email]);
+
+    delete user.password;
+    if (result) {
+      return res.json({
+        message: "Password updated successfully",
+        profile: user,
+      });
     }
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    return res.status(500).json({ message: error.message });
   }
 };
+
 
 // checke if user have or not
 const isUserExist = async (email) => {
@@ -228,6 +212,7 @@ const isUserExist = async (email) => {
 //   }
 // };
 const login = async (req, res) => {
+  try{
   const { email, password } = req.body;
   const message = {};
 
@@ -235,12 +220,12 @@ const login = async (req, res) => {
   if (!password) message.password = "Please enter a valid password";
 
   if (Object.keys(message).length > 0) {
-    return res.json({ message });
+    return res.status(400).json({ message });
   }
 
   const user = await isUserExist(email);
   if (!user || !(await bcrypt.compareSync(password, user.password))) {
-    return res.json({ message: "User or password are incorrect!" });
+    return res.status(400).json({ message: "User or password are incorrect!" });
   }
 
   const permission = await getPermissionUser(user.id);
@@ -249,7 +234,7 @@ const login = async (req, res) => {
   const obj = {
     user,
     permission,
-    token: "", // generate token JWT
+    // token: "", // generate token JWT
   };
 
   const access_token = jwt.sign({ data: obj }, TOKEN_KEY, { expiresIn: "2h" });
@@ -257,11 +242,88 @@ const login = async (req, res) => {
 
   res.json({
     isSuccess: user ? true : false,
+    // user: user,
     message: "Login success!",
     ...obj,
     access_token,
     refresh_token,
   });
+} catch (error) {
+  res.status(500).json({
+    message: error.message,
+  });
+}
+};
+
+// insert
+const createEmployee = async (req, res) => {
+  const {
+    role_id,
+    firstname,
+    lastname,
+    gender,
+    dob,
+    email,
+    tel,
+    password,
+    address,
+    salary,
+  } = req.body;
+  var filename = null;
+  if (req.file) {
+    filename = req.file.filename;
+  }
+
+  try {
+    // Check if email is already in use
+    const existingEmployee = await db.query(
+      "SELECT * FROM employee WHERE email = ?",
+      [email]
+    );
+    const existingTel = await db.query("SELECT * FROM employee WHERE tel = ?", [
+      tel,
+    ]);
+    if (existingEmployee.length > 0) {
+      // If email is already in use, return an error message
+      return res.status(400).json({
+        message: "Duplicate email. Please try another email.",
+      });
+    }
+    if (existingTel.length > 0) {
+      return res.status(400).json({
+        message: "Duplicate Telphone. Please try another telephone.",
+      });
+    }
+
+    //hash password
+    const bcryptPassword = await bcrypt.hashSync(password, 10);
+    const sqlInsertEmployee = await db.query(
+      "INSERT INTO employee ( role_id, firstname, lastname, gender, dob, email, tel, password, address, salary, image) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        role_id,
+        firstname,
+        lastname,
+        gender,
+        dob,
+        email,
+        tel,
+        bcryptPassword,
+        address,
+        salary,
+        filename,
+      ]
+    );
+
+    res.json({
+      message: sqlInsertEmployee.affectedRows
+        ? "Employee created successfully"
+        : "Something wrong!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 // upate customer
@@ -373,76 +435,7 @@ const updateImg = async (req, res) => {
   });
 };
 
-// insert
-const createEmployee = async (req, res) => {
-  const {
-    role_id,
-    firstname,
-    lastname,
-    gender,
-    dob,
-    email,
-    tel,
-    password,
-    address,
-    salary,
-  } = req.body;
-  var filename = null;
-  if (req.file) {
-    filename = req.file.filename;
-  }
 
-  try {
-    // Check if email is already in use
-    const existingEmployee = await db.query(
-      "SELECT * FROM employee WHERE email = ?",
-      [email]
-    );
-    const existingTel = await db.query("SELECT * FROM employee WHERE tel = ?", [
-      tel,
-    ]);
-    if (existingEmployee.length > 0) {
-      // If email is already in use, return an error message
-      return res.status(400).json({
-        message: "Duplicate email. Please try another email.",
-      });
-    }
-    if (existingTel.length > 0) {
-      return res.status(400).json({
-        message: "Duplicate Telphone. Please try another telephone.",
-      });
-    }
-
-    //hash password
-    const bcryptPassword = await bcrypt.hashSync(password, 10);
-    const sqlInsertEmployee = await db.query(
-      "INSERT INTO employee ( role_id, firstname, lastname, gender, dob, email, tel, password, address, salary, image) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        role_id,
-        firstname,
-        lastname,
-        gender,
-        dob,
-        email,
-        tel,
-        bcryptPassword,
-        address,
-        salary,
-        filename,
-      ]
-    );
-
-    res.json({
-      message: sqlInsertEmployee.affectedRows
-        ? "Employee created successfully"
-        : "Something wrong!",
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
 
 const remove = (req, res) => {
   const { id, image } = req.body;

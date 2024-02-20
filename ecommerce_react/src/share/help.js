@@ -12,7 +12,7 @@ export const getUser = () => {
     
     return user;
   } else {
-    logout();
+    // logout();
     return {};
   }
 };
@@ -97,7 +97,12 @@ export const formatDateClient = (date) => {
   }
   return null
 }
-
+export const formatDateClientAndHour = (date) => {
+  if (!isEmptyOrNull(date)) {
+      return moment(date).format("DD/MM/YYYY HH:mm");
+  }
+  return null;
+};
 export const formatDateServer = (date) => {
   if(!isEmptyOrNull(date)){
       return moment(date).format("YYYY-MM-DD");

@@ -1,5 +1,6 @@
-import { Button, Col, Row } from "antd";
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import { Button, Col, Row, message } from "antd";
+import React, { useEffect, useRef, useState,  } from "react";
+import { useParams } from "react-router-dom";
 import {
   Splide,
   SplideSlide,
@@ -9,32 +10,63 @@ import {
 import "@splidejs/splide/dist/css/splide.min.css";
 import "@splidejs/react-splide/css/skyblue";
 // import "@splidejs/react-splide/css/sea-green";
-import pic from "./img/head1.png";
-import aorus from "./img/aorus.png";
+import { request } from "../../share/request";
+import { configImage, getUser } from "../../share/help";
 const QuickViewPage = () => {
-  const imgs = useMemo(
-    () => [
-      { id: 0, value: "https://wallpaperaccess.com/full/2637581.jpg" },
-      { id: 1, value: "https://source.unsplash.com/user/c_v_r/1900x800" },
-      { id: 2, value: "https://source.unsplash.com/user/c_v_r/100x100" },
-      { id: 3, value: "https://wallpaperaccess.com/full/2637581.jpg" },
-      { id: 4, value: "https://wallpaperaccess.com/full/2637581.jpg" },
-    ],
-    []
-  );
+  const user = getUser();
+  const { productId } = useParams();
+  const [list, setList] = useState(null);
+  const [slider, setSlider] = useState(null);
+  const [wishlistIds, setWishlistIds] = useState([]);
+  useEffect(() => {
+    getList();
 
-  const [slider, setSlider] = useState(imgs[0]);
-  const onClickChange = (index) => {
-    console.log(index);
-    const slider = imgs[index];
-    setSlider(slider);
+   
+  }, []);
+
+  const getList = async () => {
+    var param = productId;
+    const res = await request("product/" + param, "get");
+    console.log(res);
+    if (res) {
+      setList(res.list);
+      
+    }
   };
-  const splideRef = useRef(null);
 
+  const onClickChange = (image) => {
+    setSlider(image);
+  };
+  const addToCart = async (productId) => {
+    const params = {
+      customer_id: user.id,
+      product_id: productId,
+    };
+
+    const res = await request("cart", "POST", params);
+    if (res) {
+      message.success(res.message);
+    }
+  };
+
+  const addToWishlist = async (productId) => {
+    const params = {
+      customer_id: user.id,
+      product_id: productId,
+    };
+    const res = await request("wishlist", "POST", params);
+    if (res) {
+      message.success(res.message);
+      setWishlistIds((prevIds) => [...prevIds, productId]);
+    }
+  };
+  // const splideRef = useRef(null);
   return (
     <div className="  mx-[20px] xs:mx-[30px] xl:mx-[70px]">
       <div className=" grid grid-cols-1 md:grid-cols-2 my-24 mx-0 ">
-        <div className="flex justify-start items-center  flex-col gap-5">
+      {list && list.map((product) => (
+         <div className="flex justify-start items-center  flex-col gap-5">
+          
           <Splide
             options={{
               type: "fade",
@@ -59,12 +91,12 @@ const QuickViewPage = () => {
               },
             }}
           >
-            <SplideSlide>
-              <img
-                src={slider.value}
-                alt=""
-                className="w-full h-full rounded-lg object-cover transition duration-300 ease-in-out"
-              />
+            <SplideSlide >
+                    <img
+                      src={slider === null ? configImage.image_path + product.image_1: slider}
+                      alt=""
+                      className="w-full h-full rounded-lg object-cover transition duration-300 ease-in-out"
+                    />
             </SplideSlide>
           </Splide>
           <Splide
@@ -94,39 +126,44 @@ const QuickViewPage = () => {
             }}
           >
           
-            {imgs.map((data, i) => (
-              <SplideSlide>
-                <img
-                  key={data.id}
-                  src={data.value}
-                  alt=""
-                  onClick={() => onClickChange(i)}
-                  className="w-full h-full object-cover rounded-lg  "
-                />
-              </SplideSlide>
-            ))}
+          {Object.keys(product).map((key) =>
+        key.includes("image_") ? (
+          <SplideSlide key={key}>
+            <img
+              src={configImage.image_path + product[key]}
+              alt=""
+              className="w-full h-full rounded-lg object-cover transition duration-300 ease-in-out"
+              onClick={() => onClickChange(configImage.image_path + product[key])}
+            />
+          </SplideSlide>
+        ) : null
+      )}
           </Splide>
         </div>
+      ))}
+       
         <div className="  flex justify-start items-start flex-col gap-5">
-          <h1 className="text-4xl font-bold">ROG ROG ROG ROG</h1>
-          <h3 className="text-2xl mb-1">Category : Laptop</h3>
+          {list && list.map((data, i) => (
+            <div>
+
+              <h1 className="text-4xl font-bold">{data.name}</h1>
+              <h3 className="text-2xl mb-1">Category : {data.CName}</h3>
           <h2 className="text-xl ">Product Detail</h2>
           <p>
-            • Intel Core i7-10700F • Intel H410 • WHITE • NVIDIA MSI GeForce RTX
-            2060 SUPER 8GB AERO ITX GDDR6 • SO-DIMM 16GB (16GB x 1) DDR4 2666MHz
-            • 2 total slots (64GB Max) • 512GB (1 x 512GB) M.2 NVMe PCIe GEN3x4
-            SSD 2TB (2.5) 5400RPM • Gaming Keyboard GK30 + Gaming Mouse GM11 •
-            3.5 HDD (0/0), 2.5 HDD/SSD(1/0), M.2 (1/0) • Intel WGI219Vethernet
-            (10/100/1000M) • AX200 (WIFI 6)+BT5.1 • PSU 330W • Fan Cooler
+           {data.description}
           </p>
-          <p className="text-rose-700 text-5xl mb-5">$ 122</p>
+          <p className="text-rose-700 text-5xl mb-5">$ {data.price}</p>
+            </div>
+          ))}
+         
+        
           <div className="flex justify-center items-center gap-5">
-            <button class="w-40 h-12 bg-BgBtn cursor-pointer rounded-3xl border-2 border-BgBtnHover shadow-[inset_0px_-2px_0px_1px_#01cc7a] group hover:bg-BgBtnHover transition duration-300 ease-in-out">
+            <button class="w-40 h-12 bg-BgBtn cursor-pointer rounded-3xl border-2 border-BgBtnHover shadow-[inset_0px_-2px_0px_1px_#01cc7a] group hover:bg-BgBtnHover transition duration-300 ease-in-out"  onClick={() => addToCart(productId)}  >
               <span class="font-medium text-[#333] group-hover:text-white">
                 ADD TO CART
               </span>
             </button>
-            <button class="w-40 h-12 bg-white cursor-pointer rounded-3xl border-2 border-BgBtnHover shadow-[inset_0px_-2px_0px_1px_#01cc7a] group hover:bg-BgBtnHover transition duration-300 ease-in-out">
+            <button class="w-40 h-12 bg-white cursor-pointer rounded-3xl border-2 border-BgBtnHover shadow-[inset_0px_-2px_0px_1px_#01cc7a] group hover:bg-BgBtnHover transition duration-300 ease-in-out" onClick={() => addToWishlist(productId)}>
               <span class="font-medium text-[#333] group-hover:text-white">
                 ADD TO WHILIST
               </span>

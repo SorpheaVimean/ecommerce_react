@@ -13,13 +13,13 @@ import { RiMenu5Line } from "react-icons/ri";
 import "./Navbar.module.css";
 
 const Navbar = () => {
+  
   const items = [
     {
       label: "HOME",
       key: "home",
       icon: (
         <Link to={"/"}>
-          {" "}
           <HomeOutlined />
         </Link>
       ),
@@ -29,7 +29,7 @@ const Navbar = () => {
       key: "products",
       icon: (
         <Link to={"product"}>
-          <ShoppingOutlined />{" "}
+          <ShoppingOutlined />
         </Link>
       ),
     },
@@ -38,7 +38,7 @@ const Navbar = () => {
       key: "about",
       icon: (
         <Link to={"about"}>
-          <UserOutlined />{" "}
+          <UserOutlined />
         </Link>
       ),
     },
@@ -47,7 +47,7 @@ const Navbar = () => {
       key: "support",
       icon: (
         <Link to={"support"}>
-          {" "}
+          
           <BiSupport />
         </Link>
       ),
@@ -57,7 +57,7 @@ const Navbar = () => {
       key: "contacts",
       icon: (
         <Link to={"contact"}>
-          {" "}
+          
           <FiSend />
         </Link>
       ),

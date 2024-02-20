@@ -10,7 +10,7 @@ const customer = (app) => {
     userGuard(),
     controller.update
   );
-  app.post("/api/customer/setPassword", userGuard(), controller.updatePassword);
+  app.post("/api/customer/setPassword", controller.updatePassword);
   app.post("/api/customer/login", controller.login);
   app.post(
     "/api/customer",

@@ -8,29 +8,57 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { FaApple } from "react-icons/fa";
 
-import { Button, Checkbox, Form, Input, message } from "antd";
+import { Button, Checkbox, Form, Input, message, Segmented  } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { storeUserData } from "../../share/help";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState();
-
-  const onFinish = async (values) => {
+  const [loginType, setLoginType] = useState("employee"); // Default login type
+  const onFinishEmployee = async (values) => {
     setLoading(true)
     var param = {
       "email": values.email,
       "password": values.password,
     }
-    const res = await request( "employee/login", "post", param);
+    const res = await request( "employee/login", "POST", param);
     setLoading(false) 
     if(res.isSuccess){
-      
+      message.success(res.message);
       storeUserData(res)
       window.location.href="/admin"
       
     }
   };
- 
+  const onFinishCustomer = async (values) => {
+    setLoading(true)
+    var param = {
+      "email": values.email,
+      "password": values.password,
+    }
+    const res = await request( "customer/login", "POST", param);
+    setLoading(false) 
+    if(res.isSuccess){
+      message.success(res.message);
+      storeUserData(res)
+      window.location.href="/"
+      
+    }
+  };
+ const options = [
+  { label: 'Login as Customer',
+      value: "customer",
+      className: " text-BgBtnHover  ",
+  },
+  { label: 'Login as employee',
+      value: "employee",
+      className: "text-BgBtnHover ",
+  },
+  ]
+  const handleLoginTypeChange = (value) => {
+    setLoginType(value);
+  };
+  const onFinish = loginType === "customer" ? onFinishCustomer : onFinishEmployee;
   return (
     <div>
       <Header className="flex items-center h-24">
@@ -42,6 +70,7 @@ const LoginPage = () => {
         className="  bg-cover bg-no-repeat flex justify-center items-center "
         style={{ backgroundImage: `url(${bgn})`, minHeight: "100vh" }}
       >
+        
         <div className="bg-pink-500 bg-opacity-15 shadow-lg backdrop-blur-lg backdrop-filter border-10 border-solid border-white  rounded-xl text-white  px-10 w-[360px] md:w-[500px]">
           <h2 className="mt-10 text-center text-3xl md:text-5xl font-bold leading-9 tracking-tight text-slate-200">
             Log in to VShop
@@ -61,6 +90,8 @@ const LoginPage = () => {
               <p className=" mr-12 text-white">Continue with Apple</p>
             </button>
           </div>
+          <Segmented options={options} value={loginType} onChange={handleLoginTypeChange} block />
+
           {/* form */}
           <Form
             name="normal_login"
@@ -103,9 +134,9 @@ const LoginPage = () => {
                 <Checkbox className="text-white">Remember me</Checkbox>
               </Form.Item>
 
-              <a className="login-form-forgot text-white" href="#">
+              <div className="login-form-forgot text-white" href="#">
                 Forgot password
-              </a>
+              </div>
             </div>
             <Form.Item className="flex justify-center items-center mt-10">
               <Button

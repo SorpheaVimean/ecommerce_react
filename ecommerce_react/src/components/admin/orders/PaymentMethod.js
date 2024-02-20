@@ -11,17 +11,14 @@ import {
   Select,
   message,
   Popconfirm,
-  Col,
-  Row,
   Divider,
-  DatePicker,
   Image,
   Tag,
 } from "antd";
 import {
   configImage,
   formatDateClient,
-  formatDateServer,
+
   isPersmission,
 } from "../../../share/help";
 import {
@@ -31,7 +28,7 @@ import {
   PlusOutlined,
   FileImageOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+
 import MainPage from "../../layout/MainPage";
 import { Btncompo } from "../../buttons/Buttons";
 
@@ -49,7 +46,6 @@ const PaymentMethod = () => {
   const [image, setImage] = useState(null);
   const [imagePre, setImagePre] = useState(null);
   const refMyImage = useRef();
-  const [dob, setDob] = useState();
 
   const [objFilter, setObjFilter] = useState({
     page: 1,

@@ -8,6 +8,20 @@ const getAll = async (req, res) => {
     list: sql,
   });
 };
+const getCartByCutomer = async (req, res) => {
+  const { customer_id } = req.params;
+
+  var sql = "SELECT w.id as ID,  p.* FROM wishlist w";
+  sql += " INNER JOIN product p ON (w.product_id = p.id)";
+  sql += " WHERE w.customer_id = ?";
+  const list = await db.query(sql, [customer_id]);
+  const totalRecord = await db.query("SELECT COUNT(id) as total FROM wishlist WHERE customer_id = ? ", [customer_id]);
+  res.json({
+    list: list,
+    totalRecord: totalRecord,
+  });
+};
+
 const create = async (req, res) => {
     const { customer_id, product_id } = req.body;
     const sqlCheckProduct = await db.query(
@@ -62,4 +76,5 @@ module.exports = {
   getAll,
   create,
   remove,
+  getCartByCutomer,
 };

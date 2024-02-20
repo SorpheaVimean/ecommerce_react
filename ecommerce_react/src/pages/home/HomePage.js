@@ -21,6 +21,7 @@ import "@splidejs/splide/dist/css/splide.min.css";
 
 import { Button, Card, Col, Row, Tooltip } from "antd";
 import { HeartOutlined, HeartFilled } from "@ant-design/icons";
+import { request } from "../../share/request";
 const { Meta } = Card;
 const HomePage = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -28,28 +29,27 @@ const HomePage = () => {
   const [perPage, setPerPage] = useState(4);
   const [gap, setGap] = useState(4);
   const [width, setWidth] = useState(1090);
+
+  const [getCategiries, setCategiries] = useState();
   const handleHeartClick = () => {
     setIsFilled(!isFilled);
   };
 
-  // useEffect(() => {
-  //   // Update perPage based on screen size
-  //   const updatePerPage = () => {
-  //     const screenWidth = window.innerWidth;
-  //     setPerPage(screenWidth < 640 ? 2 : 4);
-  //     setGap(screenWidth < 640 ? 2 : 4);
-  //     setWidth(screenWidth < 640 ? 900 : 1090);
-  //   };
+  useEffect(() => {
+    getCategiry();
+  },[] );
+  const getCategiry = async (parameter = {}) => {
 
-  //   // Call updatePerPage on mount and window resize
-  //   updatePerPage();
-  //   window.addEventListener("resize", updatePerPage);
-
-  //   // Clean up the event listener on component unmount
-  //   return () => {
-  //     window.removeEventListener("resize", updatePerPage);
-  //   };
-  // }, []); // Run this effect only once on mount
+    const { page, txtSearch, status } = parameter;
+    var param = `?page=${page || 1}&txtSearch=${txtSearch || ""}`;
+    if (status) {
+      param += `&status=${status}`;
+    }
+    const res = await request("category" + param, "GET");
+    setCategiries(res.list);
+    
+    
+  };
 
   return (
     <div>

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { MdOutlineDashboard } from "react-icons/md";
+import logo from "../../img/logo.png";
 import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
+  VerticalLeftOutlined,
+  VerticalRightOutlined,
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
@@ -31,6 +32,7 @@ const AdminLayout = () => {
   const [form] = Form.useForm();
   const [collapsed, setCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -39,77 +41,6 @@ const AdminLayout = () => {
     // use for link to other page
     navigate(routeName); // /category , /login
   };
-  //Logout
-  const onLogOut = () => {
-    logout();
-    console.log(isLogin());
-  };
-
-  const showModal = (user) => {
-    setIsModalOpen(true);
-  };
-  const onClear = () => {
-    form.resetFields();
-  };
-
-  const onCancel = () => {
-    setIsModalOpen(false);
-    onClear();
-  };
-  const onUpdate = async (value) => {
-    setIsModalOpen(false);
-    // Extracting form values
-    // const { oldPassword, newPassword, confirmPassword } = value;
-    // const { id, email } = user;
-    const params = {
-      id: user.id,
-      email: user.email,
-      oldPassword: value.oldPassword,
-      newPassword: value.newPassword,
-      confirmPassword: value.confirmPassword,
-    };
-    const res = await request("employee/setPassword", "POST", params);
-    if (res) {
-      message.success(res.message);
-      onCancel();
-    }
-    console.log("Value from param", params);
-  };
-
-  useEffect(() => {
-    if (!isLogin()) {
-      // mean not login
-      window.location.href = "/login";
-    }
-  }, [isLogin]);
-
-  // if user is not logged yet to show null
-  if (!isLogin()) {
-    return null;
-  }
-
-  // Siderbar menu
-
-  // function getItem(label, key, icon, children, onClick) {
-  //   return {
-  //     key,
-  //     icon,
-  //     children,
-  //     label,
-  //     onClick
-  //   };
-  // }
-  // const sidebar = [
-  //   getItem('Option 1', '1', <MdOutlineDashboard />,  onClick: () => onLinkPage("/admin"),),
-  //   getItem('Option 2', '2', <VideoCameraOutlined />),
-  //   getItem('User', 'sub1', <UserOutlined />, [
-  //     getItem('Tom', '3'),
-  //     getItem('Bill', '4'),
-  //     getItem('Alex', '5'),
-  //   ]),
-  //   getItem('Team', 'sub2', <UploadOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
-  //   getItem('Files', '9', <UploadOutlined />),
-  // ];
   const sidebar = [
     {
       key: "1",
@@ -164,6 +95,55 @@ const AdminLayout = () => {
       ],
     },
   ];
+  const [title, setTitle] = useState(sidebar[0].label);
+
+  //Logout
+  const onLogOut = () => {
+    logout();
+    console.log(isLogin());
+  };
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const onClear = () => {
+    form.resetFields();
+  };
+
+  const onCancel = () => {
+    setIsModalOpen(false);
+    onClear();
+  };
+  const onUpdate = async (value) => {
+    // Extracting form values
+    const params = {
+      id: user.id,
+      email: user.email,
+      oldPassword: value.oldPassword,
+      newPassword: value.newPassword,
+      confirmPassword: value.confirmPassword,
+    };
+      const res = await request("employee/setPassword", "POST", params);
+      if (res) {
+        message.success(res.message);
+        onCancel();
+      }
+  };
+  
+  
+
+  useEffect(() => {
+    if (!isLogin()) {
+      // mean not login
+      window.location.href = "/login";
+    }
+  }, [isLogin]);
+
+  // if user is not logged yet to show null
+  if (!isLogin()) {
+    return null;
+  }
+
   // dropdown of profile
   const items = [
     {
@@ -192,7 +172,30 @@ const AdminLayout = () => {
       onClick: onLogOut,
     },
   ];
-
+// change title
+  const handleChangeTitle = (e) => {
+    const menuItem = sidebar.find((item) => {
+      if (item.key === e.key) {
+        return true;
+      }
+      if (item.children) {
+        return item.children.some((child) => child.key === e.key);
+      }
+      return false;
+    });
+  
+    if (menuItem) {
+      if (menuItem.children) {
+        const childItem = menuItem.children.find((child) => child.key === e.key);
+        if (childItem) {
+          setTitle(childItem.label);
+          return;
+        }
+      }
+      setTitle(menuItem.label);
+    }
+  };
+  
   return (
     <Layout>
       <Sider
@@ -209,9 +212,10 @@ const AdminLayout = () => {
         collapsible
         collapsed={collapsed}
       >
+        <div className="flex justify-around ">
         <Button
           type="text"
-          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          icon={collapsed ? <VerticalLeftOutlined  /> : <VerticalRightOutlined />}
           onClick={() => setCollapsed(!collapsed)}
           style={{
             fontSize: "16px",
@@ -220,12 +224,17 @@ const AdminLayout = () => {
             color: "white",
           }}
         />
+        {collapsed ? null :  <img src={logo} alt="logo" className="w-16 m-3 transition duration-300"/>}
+       
+        </div>
+       
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
           defaultSelectedKeys={["1"]}
           mode="inline"
           items={sidebar}
+          onClick={handleChangeTitle}
         />
       </Sider>
       <Layout
@@ -235,7 +244,7 @@ const AdminLayout = () => {
         }}
       >
         <Header className="  p-0 bg-gray-200 flex justify-between items-center px-10 sticky top-0 z-10 shadow-lg">
-          <p className="font-bold text-2xl">title</p>
+          <p className="font-bold text-2xl">{title}</p>
           <div className="flex justify-center items-center gap-5">
             <p>{user.firstname + " " + user.lastname}</p>
 
@@ -246,7 +255,7 @@ const AdminLayout = () => {
               }}
               trigger={["click"]}
             >
-              <a onClick={(e) => e.preventDefault()}>
+              <div onClick={(e) => e.preventDefault()}>
                 {user.profile === null ? (
                   <Avatar icon={<UserOutlined />} />
                 ) : (
@@ -256,7 +265,7 @@ const AdminLayout = () => {
                     alt="User Profile"
                   />
                 )}
-              </a>
+              </div>
             </Dropdown>
           </div>
         </Header>
@@ -337,7 +346,6 @@ const AdminLayout = () => {
               <button
                 htmlType="submit"
                 className="bg-BgBtn w-32 hover:bg-BgBtnHover text-white px-2 py-2 rounded-lg mt-2"
-                onClick={onUpdate}
               >
                 Update
               </button>
