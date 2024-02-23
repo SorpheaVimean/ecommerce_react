@@ -23,7 +23,7 @@ import {
   message,
 } from "antd";
 import { Outlet, useNavigate } from "react-router-dom";
-import { configImage, getUser, isLogin, logout } from "../../share/help";
+import { configImage, getUser, isLogin, logout, isPersmission, } from "../../share/help";
 import { request } from "../../share/request";
 const { Header, Sider, Content } = Layout;
 
@@ -33,6 +33,16 @@ const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+
+
+
+  useEffect(() => {
+
+    if (!isLogin()) {
+      // mean not login
+      window.location.href = "/login";
+    }
+  }, [isLogin]);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -41,6 +51,7 @@ const AdminLayout = () => {
     // use for link to other page
     navigate(routeName); // /category , /login
   };
+  
   const sidebar = [
     {
       key: "1",
@@ -48,12 +59,13 @@ const AdminLayout = () => {
       label: "DashBoard",
       onClick: () => onLinkPage("/admin"),
     },
-    {
+    isPersmission("employee.Read") ? // Check if permission is granted
+    { // If granted, include this object
       key: "2",
       icon: <VideoCameraOutlined />,
       label: "Employee",
       onClick: () => onLinkPage("employee"),
-    },
+    } : {}, // If not granted, include null
     {
       key: "Customer",
       icon: <UploadOutlined />,
@@ -95,12 +107,15 @@ const AdminLayout = () => {
       ],
     },
   ];
+// Filter out null or empty objects
+const filteredSidebar = sidebar.filter(item => item !== null && Object.keys(item).length !== 0);
   const [title, setTitle] = useState(sidebar[0].label);
 
   //Logout
   const onLogOut = () => {
     logout();
     console.log(isLogin());
+    window.location.href = "/login"
   };
 
   const showModal = () => {
@@ -132,12 +147,7 @@ const AdminLayout = () => {
   
   
 
-  useEffect(() => {
-    if (!isLogin()) {
-      // mean not login
-      window.location.href = "/login";
-    }
-  }, [isLogin]);
+
 
   // if user is not logged yet to show null
   if (!isLogin()) {
@@ -196,6 +206,8 @@ const AdminLayout = () => {
     }
   };
   
+
+
   return (
     <Layout>
       <Sider

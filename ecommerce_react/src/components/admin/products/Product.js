@@ -1,5 +1,7 @@
 import { request } from "../../../share/request";
 import React, { useEffect, useState, useRef } from "react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
 import {
   Button,
@@ -36,10 +38,10 @@ import { Btncompo } from "../../buttons/Buttons";
 const { Option } = Select;
 const layout = {
   labelCol: {
-    span: 8,
+    span: 20,
   },
   wrapperCol: {
-    span: 16,
+    span:21,
   },
 };
 
@@ -53,6 +55,9 @@ const Product = () => {
   const [loading, setLoadin] = useState(false);
   const [visible, setVisible] = useState(false);
   const [Id, setId] = useState(null);
+
+   // State variable for Quill editor content
+   const [description, setDescription] = useState("");
   // const [image, setImage] = useState(null);
   //   const [imagePre, setImagePre] = useState(null);
   const refMyImage1 = useRef();
@@ -138,28 +143,50 @@ const Product = () => {
     formData.append("status", values.status);
 
     // Set image values based on selected files or existing images
-    formData.append("image1", form.getFieldValue("image1"));
-    formData.append("image2", form.getFieldValue("image2"));
-    formData.append("image3", form.getFieldValue("image3"));
-    formData.append("image4", form.getFieldValue("image4"));
-    formData.append("image5", form.getFieldValue("image5"));
+    // formData.append("image_1", form.getFieldValue("image_1"));
+    // formData.append("image_2", form.getFieldValue("image2"));
+    // formData.append("image_3", form.getFieldValue("image3"));
+    // formData.append("image_4", form.getFieldValue("image4"));
+    // formData.append("image_5", form.getFieldValue("image5"));
 
     // Append new image files if selected
     if (image1 != null) {
-      formData.append("image_product", image1, image1.filename);
+      formData.append("image_product", image1, image1.name);
+    } else {
+      formData.append("image_product", values.image_1);
     }
     if (image2 != null) {
-      formData.append("image_product", image2, image2.filename);
+      formData.append("image_product", image2, image2.name);
+    } else {
+      formData.append("image_product", values.image_2);
     }
     if (image3 != null) {
-      formData.append("image_product", image3, image3.filename);
+      formData.append("image_product", image3, image3.name);
+    } else {
+      formData.append("image_product", values.image_3);
     }
     if (image4 != null) {
-      formData.append("image_product", image4, image4.filename);
+      formData.append("image_product", image4, image4.name);
+    } else {
+      formData.append("image_product", values.image_4);
     }
     if (image5 != null) {
-      formData.append("image_product", image5, image5.filename);
+      formData.append("image_product", image5, image5.name);
+    } else {
+      formData.append("image_product", values.image_5);
     }
+    // if (image2 != null) {
+    //   formData.append("image_product", image2, image2.filename);
+    // }
+    // if (image3 != null) {
+    //   formData.append("image_product", image3, image3.filename);
+    // }
+    // if (image4 != null) {
+    //   formData.append("image_product", image4, image4.filename);
+    // }
+    // if (image5 != null) {
+    //   formData.append("image_product", image5, image5.filename);
+    // }
 
     var method = "post";
     if (Id != null) {
@@ -305,11 +332,13 @@ const Product = () => {
       dataIndex: "name",
       fixed: "left",
       width: 100,
+      ellipsis: true,
     },
     {
       key: "description",
       title: "Description",
       dataIndex: "description",
+      ellipsis: true,
     },
 
     {
@@ -487,6 +516,45 @@ const Product = () => {
       },
     },
   ];
+    // Function to handle Quill editor content change
+    const handleDescriptionChange = (content) => {
+      setDescription(content);
+    };
+  const modules = {
+// Quill modules configuration
+  toolbar: [
+    [{header: [1,2,3,4,5,6,false]}],
+    [{font: []}],
+    [{size: []}],
+    [{color: []}],
+    [{align: []}],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{'list': 'ordered'}, {'list': 'bullet'}, 
+     {'indent': '-1'}, {'indent': '+1'}],
+    ['link'],
+    ['clean']
+  ],
+  clipboard: {
+    // toggle to add extra line breaks when pasting HTML:
+    matchVisual: false,
+  }
+
+// // Quill editor formats
+// Product.formats = [
+//   'header', 'font', 'size',
+//   'bold', 'italic', 'underline', 'strike', 'blockquote',
+//   'list', 'bullet', 'indent',
+//   'link', 'image', 'video'
+// ];
+  }
+  const formats = 
+    [
+        'header', 'font', 'size', 'color', 'align',
+        'bold', 'italic', 'underline', 'strike', 'blockquote',
+        'list', 'bullet', 'indent',
+        'link',
+      ]
+  
   return (
     <MainPage loading={loading}>
       <div className="mb-2">
@@ -565,7 +633,7 @@ const Product = () => {
         pagination={{
           defaultCurrent: 1,
           total: totalRecord,
-          pageSize: 7,
+          pageSize: 18,
           onChange: (page, pageSize) => {
             setObjFilter({
               ...objFilter,
@@ -588,7 +656,7 @@ const Product = () => {
         maskClosable={false}
         width={800}
       >
-        <Form {...layout} form={form} name="control-hooks" onFinish={onFinish}>
+        <Form {...layout} layout="vertical" form={form} name="control-hooks" onFinish={onFinish}>
           <Divider />
           <Row gutter={5}>
             <Col span={12}>
@@ -692,9 +760,7 @@ const Product = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="description" label="Description">
-                <Input.TextArea />
-              </Form.Item>
+            
             </Col>
           </Row>
 
@@ -912,6 +978,20 @@ const Product = () => {
               </Form.Item>
             </Col>
           </Row>
+          <Row>
+            <Col span={24}>
+          <Form.Item name="description" label="Description" className="w-full" >
+                {/* <Input.TextArea minLength={10} /> */}
+                <ReactQuill
+          value={description}
+          onChange={handleDescriptionChange}
+          modules={modules}
+          formats={formats}
+        />
+              </Form.Item>
+              </Col>
+          </Row>
+         
 
           <Form.Item wrapperCol={24} style={{ textAlign: "right" }}>
             <Space>
@@ -925,6 +1005,7 @@ const Product = () => {
           </Form.Item>
         </Form>
       </Modal>
+      
     </MainPage>
   );
 };

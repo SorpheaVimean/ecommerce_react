@@ -135,9 +135,12 @@ const Customer = () => {
       formData.append("id", Id);
       method = "put";
     }
+    console.log(formData);
     setLoadin(true);
     const res = await request("customer", method, formData);
     setLoadin(false);
+    console.log(res);
+
     if (res) {
       message.success(res.message);
       getList();

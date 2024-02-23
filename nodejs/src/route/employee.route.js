@@ -2,14 +2,14 @@ const controller = require("../controller/employee.controller");
 const { upload } = require("../util/helper");
 const { userGuard } = require("../controller/auth.controller");
 const employee = (app) => {
-  app.get("/api/employee", userGuard(), controller.getAll);
+  app.get("/api/employee", userGuard("employee.Read"), controller.getAll);
   app.put(
     "/api/employee",
     upload.single("img_employee"),
     userGuard("employee.Update"),
     controller.update
   );
-  app.post("/api/employee/setPassword", userGuard(), controller.updatePassword);
+  app.post("/api/employee/setPassword", controller.updatePassword);
   app.post("/api/employee/login", controller.login);
   app.post(
     "/api/employee/updateImg",

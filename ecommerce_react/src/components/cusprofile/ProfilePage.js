@@ -1,6 +1,6 @@
-
-import React, {  useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
+  Avatar,
   Button,
   Col,
   DatePicker,
@@ -16,15 +16,14 @@ import {
   Tag,
   message,
 } from "antd";
-import {
-
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined,UserOutlined } from "@ant-design/icons";
 import moment from "moment";
-import { configImage, formatDateClient, formatDateServer, getUser } from "../../share/help";
+import {
+  configImage,
+  formatDateClient,
+  formatDateServer,
+  getUser,
+} from "../../share/help";
 import { request } from "../../share/request";
 import { Btncompo } from "../buttons/Buttons";
 
@@ -42,7 +41,7 @@ const ProfilePage = () => {
   const [form] = Form.useForm();
 
   const [loading, setLoadin] = useState(false);
- 
+
   const [visible, setVisible] = useState(false);
   const [Id, setId] = useState(null);
   const [image, setImage] = useState(null);
@@ -50,19 +49,15 @@ const ProfilePage = () => {
   const refMyImage = useRef();
   const [dob, setDob] = useState();
 
-
-
   const onCloseModal = () => {
     setVisible(false);
     onClearForm();
     setId(null);
   };
 
-
-
   const onFinish = async (values) => {
     const formatdob = formatDateServer(values.dob);
-    var formData = new FormData(); 
+    var formData = new FormData();
     formData.append("role_id", user.role_id);
     formData.append("firstname", values.firstname);
     formData.append("lastname", values.lastname);
@@ -74,9 +69,9 @@ const ProfilePage = () => {
     formData.append("image", form.getFieldValue("image"));
     if (image != null) {
       formData.append("img_customer", image, image.filename);
-    } 
+    }
     formData.append("id", user.id);
-    console.log("valeuuuu",  user.id)
+    console.log("valeuuuu", user.id);
     setLoadin(true);
     const res = await request("customer", "PUT", formData);
     setLoadin(false);
@@ -97,7 +92,6 @@ const ProfilePage = () => {
   };
 
   const onClickEdit = () => {
-    
     setId(user.id);
     form.setFieldsValue({
       firstname: user.firstname,
@@ -114,7 +108,6 @@ const ProfilePage = () => {
     setVisible(true);
   };
 
- 
   const onChangFile = (e) => {
     var file = e.target.files[0];
     setImage(file);
@@ -176,10 +169,7 @@ const ProfilePage = () => {
     {
       key: "7",
       label: "Role",
-      children: user ? (
-        user.role_id === 4 ? "Customer" :
-        "Unknown"
-      ) : null,
+      children: user ? (user.role_id === 4 ? "Customer" : "Unknown") : null,
     },
     {
       key: "5",
@@ -188,30 +178,31 @@ const ProfilePage = () => {
     },
   ];
   return (
-    
     <div className="">
-      <h1 className="text-5xl  text-center">Profile</h1>
-      <div className="flex gap-40 mt-5 justify-center items-center">
-      <Descriptions bordered column={1} items={items} className='w-1/2' />
-      <div className="flex justify-center items-center">
-        <Image
-                
-                src={configImage.image_path + user.image}
-                width={200}
-                className="rounded-lg align-middle "
-                alt=""
-              />
-      </div>
-      <Btncompo
-              className="px-10"
-              type="primary"
-              label="Update Profile"
-              icon={<EditOutlined className="mr-4 text-lg " />}
-              onClick={onClickEdit}
-              
+      <h1 className="text-5xl text-center m-7">Profile</h1>
+      <div className="flex gap-40 mt-5 justify-center items-center m-7">
+        <Descriptions bordered column={1} items={items} className="w-1/2" />
+        <div className="flex justify-center items-center">
+          {user.profile === null ? (
+            <Avatar icon={<UserOutlined />} />
+          ) : (
+            <Image
+              src={configImage.image_path + user.image}
+              width={200}
+              className="rounded-lg align-middle "
+              alt=""
             />
+          )}
+        </div>
+        <Btncompo
+          className="px-10"
+          type="primary"
+          label="Update Profile"
+          icon={<EditOutlined className="mr-4 text-lg " />}
+          onClick={onClickEdit}
+        />
       </div>
-              
+
       <Modal
         open={visible}
         title="Update customer"
@@ -220,15 +211,12 @@ const ProfilePage = () => {
         maskClosable={false}
         width={800}
       >
-        <Form
-          {...layout}
-          form={form}
-          name="control-hooks"
-          onFinish={onFinish}
-        >
+        <Form {...layout} form={form} name="control-hooks" onFinish={onFinish}>
           <Divider />
           <div className="text-center">
-            <Tag color="red">Noted</Tag>After you update your profile this will be log out automatically</div>
+            <Tag color="red">Noted</Tag>After you update your profile this will
+            be log out automatically
+          </div>
           <Divider />
 
           <Row gutter={5}>
@@ -319,14 +307,11 @@ const ProfilePage = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-            <Form.Item name="address" label="Address">
+              <Form.Item name="address" label="Address">
                 <Input.TextArea />
               </Form.Item>
             </Col>
           </Row>
-         
-
-         
 
           <Row>
             <Col span={12}>
@@ -385,19 +370,18 @@ const ProfilePage = () => {
 
           <Form.Item wrapperCol={24} style={{ textAlign: "right" }}>
             <Space>
-              
               <Button htmlType="button" onClick={onClearForm}>
                 Clear
               </Button>
               <Button htmlType="summit" type="primary">
-                 UPDATE
+                UPDATE
               </Button>
             </Space>
           </Form.Item>
         </Form>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default ProfilePage
+export default ProfilePage;

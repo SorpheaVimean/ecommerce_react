@@ -126,7 +126,7 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   const { id } = req.body;
-  const sqlRemove = await db.query("DELETE FROM role_permission WHERE id = ?", [
+  const sqlRemove = await db.query("DELETE FROM role_permission WHERE permission_id = ?", [
     id,
   ]);
   res.json({

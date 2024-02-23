@@ -4,7 +4,7 @@ const { isEmptyOrNull } = require("../util/helper");
 const getCartByCutomer = async (req, res) => {
   const { customer_id } = req.params;
 
-  var sql = "SELECT c.customer_id, c.quantity AS qty, c.quantity*p.price AS Subtotal, p.* FROM carts c";
+  var sql = "SELECT c.id AS ID, c.quantity AS qty, c.quantity*p.price AS Subtotal, p.* FROM carts c";
   sql += " INNER JOIN product p ON (c.product_id = p.id)";
   sql += " WHERE c.customer_id = ?";
   const list = await db.query(sql, [customer_id]);
@@ -77,7 +77,8 @@ const updateCart = async (req, res) => {
       message: message,
     });
   }
-  var sql = "UPDATE carts SET quantity=(quantity+?) WHERE id=?";
+  // var sql = "UPDATE carts SET quantity=(quantity+?) WHERE id=?";
+  var sql = "UPDATE carts SET quantity= ? WHERE id=?";
   // 4 => 1 => (4+1) =5
   // 4 => -1 => (4-1) = 3
   var data = await db.query(sql, [quantity, id]);
@@ -88,13 +89,25 @@ const updateCart = async (req, res) => {
 };
 
 const removeCart = async (req, res) => {
-  const { id } = req.body;
-  var data = await db.query("DELETE FROM carts WHERE id = ?", [id]);
-  res.json({
-    data: data,
-    message: "Cart removed!",
-  });
+  try {
+    const { id } = req.body;
+    const data = await db.query("DELETE FROM carts WHERE id = ?", [id]);
+    if (data.affectedRows === 0) {
+      return res.status(404).json({
+        message: "Cart not found or already removed.",
+      });
+    }
+    res.json({
+      data: data,
+      message: "1 item removed!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
 };
+
 const removeAll = async (req, res) => {
   const { customer_id } = req.body;
   var data = await db.query("DELETE FROM carts WHERE customer_id = ?", [customer_id]);

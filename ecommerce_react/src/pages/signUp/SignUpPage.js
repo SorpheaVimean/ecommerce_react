@@ -18,24 +18,51 @@ import {
   Radio,
   Row,
   Select,
+  message,
 } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { Option } from "antd/es/mentions";
-const onFinish = (values) => {
-  console.log("Received values of form: ", values);
-};
+import { formatDateServer } from "../../share/help";
+import { request } from "../../share/request";
+
 const SignUpPage = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [form] = Form.useForm();
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState(null);
 
   const validateConfirmPassword = (rule, value, callback) => {
     if (value && value !== password) {
       callback("The passwords do not match!");
     } else {
       callback();
+    }
+  };
+
+  const onFinish = async (values) => {
+    const formatdob = formatDateServer(values.dob);
+    var formData = new FormData();
+    formData.append("firstname", values.firstname);
+    formData.append("lastname", values.lastname);
+    formData.append("gender", values.gender);
+    formData.append("dob", formatdob);
+    formData.append("email", values.email);
+    formData.append("tel", values.tel);
+    formData.append("address", values.address);
+    formData.append("password", values.password);
+    formData.append("image", form.getFieldValue("image"));
+    if (image != null) {
+      formData.append("img_customer", image, image.filename);
+    }
+
+    setLoading(true);
+    const res = await request("customers", "POST", formData);
+    setLoading(false);
+    if (res) {
+      message.success(res.message);
+      window.location.href = "/login";
     }
   };
   return (
@@ -53,43 +80,34 @@ const SignUpPage = () => {
         <h2 className="mt-10 text-center text-3xl md:text-5xl font-bold leading-9 tracking-tight text-slate-200">
           Sign Up now to start shopping with VShop
         </h2>
-        <div className="bg-pink-500 bg-opacity-15 shadow-lg backdrop-blur-lg backdrop-filter border-10 border-solid border-white  rounded-xl text-white  px-10 w-[360px] md:w-[500px]">
+        <div className="bg-pink-500 bg-opacity-15 shadow-lg backdrop-blur-lg backdrop-filter border-10 border-solid border-white  rounded-xl text-white  px-5 w-[350px] md:w-[500px]">
           <h2 className="mt-10 text-center text-3xl md:text-5xl font-bold leading-9 tracking-tight text-slate-200">
             Sign Up with VShop
           </h2>
           {/* connect with */}
           <div className="my-10  flex flex-col items-center justify-center  text-md font-bold leading-9 tracking-tigh text-gray-300">
-            <a className="flex items-center border-2 px-5 py-1 rounded-full border-slate-400 hover:border-white mb-2">
-              <FcGoogle className=" text-2xl mr-10 " />
-              <p className=" mr-12 text-white ">Sign Up with Google</p>
-            </a>
-            <a className="flex items-center border-2 px-4 py-1 rounded-full border-slate-400 hover:border-white mb-2">
-              <FaFacebook className=" text-2xl mr-8 text-[#1877f2]" />
-              <p className=" mr-12 text-white">Sign Up with Facebook</p>
-            </a>
+            <div className="flex justify-between items-center gap-10 border-2 px-5 py-1 rounded-full border-slate-400 hover:border-white mb-2">
+              <FcGoogle className=" text-2xl  " />
+              <p className="  text-white ">Sign Up with Google</p>
+            </div>
+            <div className="flex justify-between items-center gap-6 border-2 px-5 py-1 rounded-full border-slate-400 hover:border-white mb-2">
+              <FaFacebook className=" text-2xl  text-[#1877f2]" />
+              <p className="  text-white">Sign Up with Facebook</p>
+            </div>
           </div>
           <Divider className={styles.custom_divider}>or</Divider>
           <h2 className="mt-10 mb-5 text-center text-2xl md:text-3xl font-bold leading-9 tracking-tight text-slate-200">
             Sign Up now with VShop
           </h2>
           {/* form */}
-          <Form
-            name="normal_login"
-            className="login-form"
-            layout="vertical"
-            initialValues={{
-              remember: true,
-            }}
-            onFinish={onFinish}
-          >
-            <div className="flex justify-between w-full gap-5">
-              <div
-                className="relative mb-3 text-xl w-full"
-                data-te-input-wrapper-init
-              >
+          <Form name="normal_sigup" layout="vertical" onFinish={onFinish}>
+          <Row gutter={5}>
+              <Col span={12}>
                 <Form.Item
-                  name="firstName"
-                  label={<span className="text-white">What's your lastName?</span>}
+                  name="firstname"
+                  label={
+                    <span className="text-white">What's your lastName?</span>
+                  }
                   rules={[
                     {
                       required: true,
@@ -97,21 +115,15 @@ const SignUpPage = () => {
                     },
                   ]}
                 >
-                  <Input
-                    onChange={(event) => {
-                      setFirstName(event.target.value);
-                    }}
-                    placeholder="Input your firstName"
-                  />
+                  <Input placeholder="Input your firstName" />
                 </Form.Item>
-              </div>
-              <div
-                className="relative mb-3 text-xl w-full "
-                data-te-input-wrapper-init
-              >
+              </Col>
+              <Col span={12}>
                 <Form.Item
-                  name="lastName"
-                  label={<span className="text-white">what's your lastName?</span>}
+                  name="lastname"
+                  label={
+                    <span className="text-white">what's your lastName?</span>
+                  }
                   rules={[
                     {
                       required: true,
@@ -119,75 +131,95 @@ const SignUpPage = () => {
                     },
                   ]}
                 >
-                  <Input
-                    onChange={(event) => {
-                      setLastName(event.target.value);
-                    }}
-                    placeholder="Input your lastName"
-                  />
+                  <Input placeholder="Input your lastName" />
                 </Form.Item>
-              </div>
-            </div>
-            <Row gutter={15}>
-              <Col span={12}>
-              <Form.Item
-                name="Gender"
-                label={<span className="text-white">Gender</span>}
-                allowClear
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select your gender!",
-                  },
-                ]}
-              >
-                <Select
-                  placeholder="Please select gender"
-                  allowClear={true}
-                  onChange={() => {}}
-                >
-                  <Option value={"1"}>Male</Option>
-                  <Option value={"0"}>Female</Option>
-                </Select>
-              </Form.Item>
-              </Col>
-              <Col span={12}>
-              <Form.Item
-                name="DOB"
-                label={<span className="text-white">Date of Birth</span>}
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your Date of birth!",
-                  },
-                ]}
-              >
-                <DatePicker className="w-full" />
-              </Form.Item>
               </Col>
             </Row>
-           
-
-             
-            
-            <div className="relative mb-3 text-xl  " data-te-input-wrapper-init>
+            <Row gutter={5}>
+              <Col span={12}>
+                <Form.Item
+                  name="gender"
+                  label={<span className="text-white">Gender</span>}
+                  allowClear
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select your gender!",
+                    },
+                  ]}
+                >
+                  <Select
+                    placeholder="Please select gender"
+                    allowClear={true}
+                    onChange={() => {}}
+                  >
+                    <Option value={"1"}>Male</Option>
+                    <Option value={"0"}>Female</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="dob"
+                  label={<span className="text-white">Date of Birth</span>}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input your Date of birth!",
+                    },
+                  ]}
+                >
+                  <DatePicker className="w-full" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <div className="relative mb-3 text-xl  ">
               <Form.Item
-                name="email"
-                label={<span className="text-white">Email</span>}
+                name="address"
+                label={<span className="text-white">Address</span>}
                 rules={[
                   {
                     required: true,
-                    message: "Please input your email!",
+                    message: "Please input your address!",
                   },
                 ]}
               >
-                <Input
-                  onChange={(event) => {
-                    setEmail(event.target.value);
-                  }}
-                  placeholder="Input your email"
-                />
+                <Input.TextArea placeholder="Input your address" />
               </Form.Item>
+              <Row gutter={5}>
+                <Col span={12}>
+                  <Form.Item
+                    name="email"
+                    label={<span className="text-white">Email</span>}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your email!",
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Input your email" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="tel"
+                    label={<span className="text-white">Phone Number</span>}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your telephone number!",
+                      },
+                      {
+                        pattern: /^[0-9]+$/,
+                        message: "Tel must contain only numbers!",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
             </div>
 
             <div className="relative mb-3 text-xl">
@@ -236,28 +268,29 @@ const SignUpPage = () => {
 
             <div className="col-span-6 mt-5 flex justify-between">
               <Form.Item>
-                <Checkbox className="text-white">Accept all term and conditions</Checkbox>
+                <Checkbox className="text-white">
+                  Accept all term and conditions
+                </Checkbox>
               </Form.Item>
             </div>
             <Form.Item className="flex justify-center items-center mt-10">
               <Button
-                type="primary"
                 htmlType="submit"
                 className="login-form-button bg-BgBtn text-black w-80 duration-300 hover:scale-110"
               >
-               Sign Up
+                Sign Up
               </Button>
             </Form.Item>
-            <p className="mt-10 text-center text-sm text-gray-400 mb-5">
-              Already have an account?
-              <a
-                href="login"
-                className="font-semibold leading-6 text-white hover:text-green-400 underline cursor-pointer"
-              >
-                Log In for Vshop
-              </a>
-            </p>
           </Form>
+          <p className="mt-10 text-center text-sm text-gray-400 mb-5">
+            Already have an account?
+            <Link
+              to="/login"
+              className="font-semibold leading-6 text-white hover:text-green-400 underline cursor-pointer"
+            >
+              Log In for Vshop
+            </Link>
+          </p>
         </div>
       </div>
     </div>

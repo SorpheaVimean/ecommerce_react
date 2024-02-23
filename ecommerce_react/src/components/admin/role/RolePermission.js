@@ -86,9 +86,7 @@ const RolePermission = () => {
   };
 
   const onDelete = async (rows) => {
-    var param = {
-      id: rows.id,
-    };
+    const param = { id: rows.permission_id};
     const res = await request("rolePermission", "delete", param);
     if (res) {
       getList();
@@ -155,16 +153,16 @@ const RolePermission = () => {
       render: (value, item, index) => {
         return (
           <div key={index}>
-            {isPersmission("employee.Update") && (
+            {isPersmission("role_permission.Update") && (
               <EditOutlined
                 className="mr-10 text-blue-600 text-xl hover:bg-gray-300 p-2 rounded-2xl transition duration-500"
                 onClick={() => onClickEdit(item)}
               />
             )}
-            {isPersmission("employee.Delete") && (
+            {isPersmission("role_permission.Delete") && (
               <Popconfirm
-                title="Delete Employee"
-                description="Are you sure to delete this employee?"
+                title="Delete role_permission"
+                description="Are you sure to delete this role_permission?"
                 onConfirm={() => onDelete(item)}
                 okText="Yes"
                 cancelText="No"

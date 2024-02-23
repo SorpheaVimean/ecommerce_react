@@ -3,11 +3,11 @@ const { upload } = require("../util/helper");
 const { userGuard } = require("../controller/auth.controller");
 
 const product = (app) => {
-  app.get("/api/product", userGuard(), controller.getAll);
-  app.get("/api/product/latest", userGuard(), controller.getLatest);
+  app.get("/api/product", controller.getAll);
+  app.get("/api/product/latest", controller.getLatest);
   // app.get("/api/product", controller.getAllProductsAndImages);
   // app.get("/api/product/:id", userGuard(), controller.getOne);
-  app.get("/api/product/:id", userGuard(), controller.getProductById);
+  app.get("/api/product/:id", controller.getProductById);
   app.post(
     "/api/product",
     upload.array("image_product", 5),

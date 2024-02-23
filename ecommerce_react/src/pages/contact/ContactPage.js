@@ -27,7 +27,7 @@ const ContactPage = () => {
           ></path>
         </svg>
       
-        <div className="absolute text-white pt-16 md:pt-26 text-5xl">
+        <div className="absolute font-bold pt-16 md:pt-26 text-5xl">
           <p>GET IN TOUCH</p>
         </div>
       </div>

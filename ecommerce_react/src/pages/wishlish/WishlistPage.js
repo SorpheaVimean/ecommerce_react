@@ -117,7 +117,7 @@ const Wishlistpage = () => {
         hoverable
         className="w-[150px] md:w-[200px] lg:w-[180px] xl:w-[280px]  overflow-hidden mb-10 "
         cover={
-          <div className="h-72 overflow-hidden" onClick={() => viewDetail(product.id)}>
+          <div  className="h-52 md:h-60 lg:h-72 overflow-hidden" onClick={() => viewDetail(product.id)}>
             <img
               alt="example"
               src={configImage.image_path + product.image_1}
@@ -127,9 +127,10 @@ const Wishlistpage = () => {
         }
       >
         <Meta title={product.name} description="www.instagram.com " />
-        <div className="mt-2">
+
+        <div className="mt-2  ">
           <p className="text-lg font-semibold text-red-600">${product.price}</p>
-          <Space>
+          <Space className="flex flex-col lg:flex-row">
           <button className="bg-BgBtn hover:bg-BgBtnHover text-white px-4 py-2 rounded-xl mt-2" onClick={() => addToCart(product.id)}>
             Add to Cart
           </button>

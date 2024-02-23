@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomeLayout from "../src/components/layout/HomeLayout";
 import HomePage from "./pages/home/HomePage";
 import ProductPage from "./pages/products/ProductPage";
+import ProductCatagoryPage from "./pages/products/ProductCatagoryPage";
+import ProductSearch from "./pages/products/ProductSearch";
 import AboutPage from "./pages/about/AboutPage";
 import SupportPage from "./pages/support/SupportPage";
 import ContactPage from "./pages/contact/ContactPage";
@@ -47,7 +49,9 @@ function App() {
         <Route path="customerprofile" element={<ProfilePage />} />
         <Route path="order" element={<OrderPage />} />
           <Route path="" element={<HomePage />} />
-          <Route path="product" element={<ProductPage />} />
+          <Route path="product/:txtsearch?" element={<ProductPage />} />
+          <Route path="productCategory/:category?" element={<ProductCatagoryPage />} />
+          <Route path="productSearch" element={<ProductSearch />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="support" element={<SupportPage />} />
           <Route path="contact" element={<ContactPage />} />

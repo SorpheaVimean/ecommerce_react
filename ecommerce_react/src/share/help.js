@@ -87,7 +87,7 @@ export const logout = () => {
   localStorage.removeItem("permission","0")
   localStorage.removeItem("refresh_token","0")
   localStorage.removeItem("user","0")
-  window.location.href="/login"
+  // window.location.href="/signUp"
 }
 
 
@@ -109,7 +109,10 @@ export const formatDateServer = (date) => {
   }
   return null
 }
-
+  // Helper function to format price
+ export const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
 // config image
 export const configImage = {

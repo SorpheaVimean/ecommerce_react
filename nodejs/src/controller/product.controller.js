@@ -17,7 +17,7 @@ const getAll = async (req, res) => {
     const { page, txtSearch, categoryId, productStatus } = req.query;
 
     var param = [getParam(categoryId)];
-    var limitItem = 2;
+    var limitItem = 18;
     var offset = (page - 1) * limitItem;
     if (isNaN(offset)) {
       offset = 0;
@@ -28,10 +28,18 @@ const getAll = async (req, res) => {
     var where = " WHERE p.category_id = IFNULL(?,p.category_id) ";
 
     if (!isEmptyOrNull(txtSearch)) {
-      where += " AND p.id = ? OR p.name LIKE ? "; //"' + txtSearch + '"
-      param.push(txtSearch);
-      param.push("%" + txtSearch + "%");
+      // Check if txtSearch is a valid integer ID
+      const searchId = parseInt(txtSearch);
+      if (!isNaN(searchId)) {
+        where += " AND p.id = ?"; // Only match exact ID
+        param.push(searchId);
+      } else {
+        // If txtSearch is not a valid integer ID, search by name
+        where += " AND p.name LIKE ? ";
+        param.push("%" + txtSearch + "%");
+      }
     }
+    
     if (!isEmptyOrNull(productStatus)) {
       where += " AND p.status = ?"; ///productStatus
       param.push(productStatus);
@@ -197,7 +205,9 @@ const getLatest = async (req, res) => {
     const result = await db.query(sqllastest);
 
     // Assuming the result is an array of rows from the database
-    res.json(result);
+    res.json({
+      list: result,
+    });
   } catch (error) {
     res.status(500).send({
       message: error.message,

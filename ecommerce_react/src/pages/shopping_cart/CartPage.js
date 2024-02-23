@@ -14,16 +14,13 @@ import {
   message,
 } from "antd";
 import Input from "antd/es/input/Input";
-import { FaCcPaypal, FaCcVisa } from "react-icons/fa";
+import { FaCcVisa } from "react-icons/fa";
 import {
-  EditOutlined,
   DeleteOutlined,
-  PlusCircleOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { request } from "../../share/request";
-import { configImage, getUser } from "../../share/help";
-import { BtnSmall, Btncompo } from "../../components/buttons/Buttons";
+import { configImage, formatPrice, getUser } from "../../share/help";
 import { Link } from "react-router-dom";
 const CartPage = () => {
   const [form] = Form.useForm();
@@ -37,64 +34,30 @@ const CartPage = () => {
     },
   };
   const user = getUser();
-  const datas = [
-    {
-      img: "https://wallpaperaccess.com/full/2637581.jpg",
-      name: "Laptop",
-      des: "This is the best laptop",
-      Price: 500,
-      Quantity: 1,
-      key: "1", // Add a unique key for each row
-    },
-    {
-      img: "https://wallpaperaccess.com/full/2637581.jpg",
-      name: "Laptop",
-      des: "This is the best laptop",
-      Price: 500,
-      Quantity: 1,
-      key: "2", // Add a unique key for each row
-    },
-    {
-      img: "https://wallpaperaccess.com/full/2637581.jpg",
-      name: "Laptop",
-      des: "This is the best laptop",
-      Price: 500,
-      Quantity: 1,
-      key: "3", // Add a unique key for each row
-    },
-    {
-      img: "https://wallpaperaccess.com/full/2637581.jpg",
-      name: "Laptop",
-      des: "This is the best laptop",
-      Price: 500,
-      Quantity: 1,
-      key: "4", // Add a unique key for each row
-    },
-    {
-      img: "https://wallpaperaccess.com/full/2637581.jpg",
-      name: "Laptop",
-      des: "This is the best laptop",
-      Price: 500,
-      Quantity: 1,
-      key: "5", // Add a unique key for each row
-    },
-  ];
+
 
   const [modal, contextHolder] = Modal.useModal();
-  const [data, setData] = useState(datas);
   const [list, setList] = useState([]);
   const [payment, setPayment] = useState([]);
   const [loading, setLoadin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalRecord, setTotalRecord] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const onChange = (value, recordKey) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.key === recordKey ? { ...item, Quantity: value } : item
-      )
-    );
+  const onChange = async (record, newQuantity) => {
+    const params = {
+      id: record.ID,
+      quantity: newQuantity,
+    };
+    // Send PUT request to update the cart item
+    const res = await request("cart", "PUT", params);
+  
+    if (res) {
+      // message.success(res.message);
+      // After successful update, refresh the cart list
+      getList();
+    }
   };
+  
   useEffect(() => {
     getList();
     getPayment();
@@ -123,12 +86,9 @@ const CartPage = () => {
   };
   const onDelete = async (cartID) => {
     const param = {
-      id: cartID,
+      "id": cartID,
     };
-    console.log(cartID);
-    const res = await request("cart", "delete", param);
-    console.log(res);
-
+    const res = await request("cart", "DELETE", param);
     if (res) {
       getList();
       message.success(res.message);
@@ -175,7 +135,6 @@ const CartPage = () => {
   const onCloseModal = () => {
    setIsModalOpen(false);
     onClearForm();
-    // setId(null);
   };
   const onFinish = async (values) => {
    setIsModalOpen(true);
@@ -205,7 +164,7 @@ const CartPage = () => {
           />
           <div>
             <p className="text-lg font-semibold">{record.name}</p>
-            <p className="text-sm text-gray-500">{record.Subtotal}</p>
+            {/* <p className="text-sm text-gray-500">{record.Subtotal}</p> */}
           </div>
         </div>
       ),
@@ -214,22 +173,19 @@ const CartPage = () => {
       title: "Price",
       dataIndex: "price",
       key: "price",
-    },
-    {
-      title: "id",
-      dataIndex: "id",
-      key: "id",
+      render: value => (
+        <span className="text-red-500">${formatPrice(value)}</span>
+      )
     },
     {
       title: "Quantity",
       key: "Quantity",
-      // dataIndex: "qty",
       render: (record) => (
         <Space size="middle">
           <InputNumber
-            min={1}
+            // min={1}
             defaultValue={record.qty}
-            onChange={(value) => onChange(value || 1, record.key)}
+            onChange={(value) => onChange(record, value)}
           />
         </Space>
       ),
@@ -239,11 +195,11 @@ const CartPage = () => {
       key: "Subtotal",
       render: (record) => (
         <Space size="middle" className="flex justify-between items-center">
-          <div className="">$ {record.Subtotal}</div>
+          <div className="text-red-500">$ {formatPrice(record.Subtotal)}</div>
           <Popconfirm
             title="Delete item"
             description="Are you sure to delete this item?"
-            onConfirm={() => onDelete(record.id)} // Make sure record.id is correctly referencing the id field
+            onConfirm={() => onDelete(record.ID)} 
             okText="Yes"
             cancelText="No"
             okButtonProps={{
@@ -305,19 +261,19 @@ const CartPage = () => {
           </div>
           <div className="flex justify-between items-center">
             <p>Subtotal</p>
-            <p>${totalPrice}</p>
+            <p className="text-red-500">${formatPrice(totalPrice)}</p>
           </div>
           <div className="flex justify-between items-center">
             <p>Discount</p>
-            <p>$-</p>
+            <p>%-</p>
           </div>
           <div className="flex justify-between items-center">
             <p>Tax</p>
-            <p>$-</p>
+            <p>%-</p>
           </div>
           <div className="flex justify-between items-center">
             <p>Order Total</p>
-            <p>$ {totalPrice}</p>
+            <p className="text-red-500">$ {formatPrice(totalPrice)}</p>
           </div>
           <div className="flex justify-center  items-center flex-col gap-y-3">
             <button className="login-form-button bg-BgBtn rounded-full p-3 w-full text-white duration-300 hover:scale-105 hover:bg-BgBtnHover" onClick={onShowModal}>
@@ -348,7 +304,7 @@ const CartPage = () => {
         <div className="">
           <div className="flex justify-around mb-5">
             <div className="font-semibold">
-              Total Amount: <span className="text-red-500 font-bold"> $  {totalPrice}</span>
+              Total Amount: <span className="text-red-500 font-bold"> $  {formatPrice(totalPrice)}</span>
             </div>
             <div className="font-semibold">
               Total itmems: <span className="text-red-500 font-bold">   {totalRecord}</span>

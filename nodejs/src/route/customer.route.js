@@ -3,19 +3,18 @@ const controller = require("../controller/customer.controller");
 const { upload } = require("../util/helper");
 
 const customer = (app) => {
-  app.get("/api/customer", userGuard(), controller.getAll);
+  app.get("/api/customer", userGuard("customer.Read"), controller.getAll);
   app.put(
     "/api/customer",
     upload.single("img_customer"),
-    userGuard(),
+    userGuard("customer.Update"),
     controller.update
   );
   app.post("/api/customer/setPassword", controller.updatePassword);
   app.post("/api/customer/login", controller.login);
   app.post(
-    "/api/customer",
-    upload.single("img_customer"),
-    userGuard(),
+    "/api/customers",
+    upload.single("img_customer"),userGuard("customer.Create"),
     controller.createCustomer
   );
   // app.put("/api/customer", controller.login);

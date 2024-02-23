@@ -16,12 +16,13 @@ const upload = multer({
     },
   }),
   limits: {
-    fileSize: 1024 * 1024 * 3,
+    fileSize: 1024 * 1024 * 7,
   },
   fileFilter: function (req, file, callback) {
     if (
       file.mimetype !== "image/png" &&
       file.mimetype !== "image/jpg" &&
+      file.mimetype !== "image/gif" &&
       file.mimetype !== "image/jpeg"
     ) {
       callback(null, false);
@@ -40,15 +41,15 @@ const removeFile = (filename) => {
   }
 };
 
-TOKEN_KEY = "LKJIJOPIEWRJ@#IU)(@U#)*@)#*$)LKJDSFSL:KJ12309802934908"
-REFRESH_KEY = "342080!@DCFS23;ksdfkq23po9[f323@$@#$@#$@$#@#$@#$sjdflajlkjsaf"
+TOKEN_KEY = "LKJIJOPIEWRJ@#IU)(@U#)*@)#*$)LKJDSFSL:KJ12309802934908";
+REFRESH_KEY = "342080!@DCFS23;ksdfkq23po9[f323@$@#$@#$@$#@#$@#$sjdflajlkjsaf";
 
 const isEmptyOrNull = (value) => {
-  if(value == "" || value == null || value == "null" || value == undefined ){
-      return true
+  if (value == "" || value == null || value == "null" || value == undefined) {
+    return true;
   }
-  return false
-}
+  return false;
+};
 const getParam = (value) => {
   if (value == "" || value == "null" || value == "undefined") {
     return null;
@@ -57,11 +58,11 @@ const getParam = (value) => {
 };
 // // https://stackoverflow.com/questions/5366849/convert-1-to-0001-in-javascript
 const invoiceNumber = (number) => {
-    var str = "" + (number+1);
-    var pad = "0000"
-    var invoice = pad.substring(0, pad.length - str.length) + str;
-    return "INV"+invoice; // INV0001, INV0002, INV19999
-}
+  var str = "" + (number + 1);
+  var pad = "0000";
+  var invoice = pad.substring(0, pad.length - str.length) + str;
+  return "INV" + invoice; // INV0001, INV0002, INV19999
+};
 
 // const productBarcode = (number) => {
 //     var str = "" + (number+1);

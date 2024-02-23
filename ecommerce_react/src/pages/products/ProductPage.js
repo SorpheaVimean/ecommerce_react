@@ -1,31 +1,31 @@
 import { useEffect, useState } from "react";
-import bg from "../../img/banner1.png";
 import { Button, Card, Input, Pagination, Select, Space, message } from "antd";
 import { HeartOutlined, HeartFilled } from "@ant-design/icons";
-import head1 from "../../img/head1.png";
+
 import Meta from "antd/es/card/Meta";
 import { request } from "../../share/request";
-import { configImage, getUser } from "../../share/help";
-
-
+import { configImage, getUser, isLogin } from "../../share/help";
+import MainPage from "../../components/layout/MainPage";
+import { useParams } from "react-router-dom";
 
 const ProductPage = () => {
+  const { txtsearch } = useParams();
   const { Option } = Select;
   const user = getUser();
-  const [isHovered, setIsHovered] = useState(false);
-  const [isFilled, setIsFilled] = useState([]);
+
+  // const [isFilled, setIsFilled] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [Id, setId] = useState(null);
+  // const [Id, setId] = useState(null);
   const [list, setList] = useState([]);
   const [wishlistIds, setWishlistIds] = useState([]);
-  const [category, setCategory] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [totalRecord, setTotalRecord] = useState(0);
   const [objFilter, setObjFilter] = useState({
     page: 1,
-    txtSearch: "",
+    txtSearch: txtsearch,
     categorySearch: null,
   });
-  const { page, txtSearch, categorySearch } = objFilter;
+  const { txtSearch, categorySearch } = objFilter;
 
   useEffect(() => {
     getList(objFilter);
@@ -37,14 +37,11 @@ const ProductPage = () => {
     param += "&txtSearch=" + (parameter.txtSearch || "");
     param += "&categoryId=" + parameter.categorySearch;
     const res = await request("product" + param, "get");
-    setTimeout(() => {
-      setLoading(false);
-    }, 300);
-
+    setLoading(false);
     if (res) {
       setList(res.list);
 
-      setCategory(res.list_category);
+      setCategories(res.list_category);
       if (res.totalRecord.length > 0) {
         setTotalRecord(res.totalRecord[0].total);
       }
@@ -56,26 +53,34 @@ const ProductPage = () => {
   };
 
   const addToCart = async (productId) => {
-    const params = {
-      customer_id: user.id,
-      product_id: productId,
-    };
+    if (!isLogin()) {
+      window.location.href = "/login";
+    } else {
+      const params = {
+        customer_id: user.id,
+        product_id: productId,
+      };
 
-    const res = await request("cart", "POST", params);
-    if (res) {
-      message.success(res.message);
+      const res = await request("cart", "POST", params);
+      if (res) {
+        message.success(res.message);
+      }
     }
   };
 
   const addToWishlist = async (productId) => {
-    const params = {
-      customer_id: user.id,
-      product_id: productId,
-    };
-    const res = await request("wishlist", "POST", params);
-    if (res) {
-      message.success(res.message);
-      setWishlistIds((prevIds) => [...prevIds, productId]);
+    if (!isLogin()) {
+      window.location.href = "/login";
+    } else {
+      const params = {
+        customer_id: user.id,
+        product_id: productId,
+      };
+      const res = await request("wishlist", "POST", params);
+      if (res) {
+        message.success(res.message);
+        setWishlistIds((prevIds) => [...prevIds, productId]);
+      }
     }
   };
 
@@ -84,14 +89,14 @@ const ProductPage = () => {
     const res = await request("wishlist/" + params, "get");
     if (res) {
       setWishlistIds(res.list);
-      console.log("ProductIDDDDDDDDDDDDD", setWishlistIds);
     }
   };
   const isProductInWishlist = (productId) => {
-    const compare = wishlistIds.some(item => item.product_id === productId);
+ return wishlistIds.includes(productId);
+    // console.log( "ProductIDDDDDDDDDDDDD: ", productId);
   };
   return (
-    <div>
+    <MainPage loading={loading}>
       <div className="relative flex justify-start   overflow-hidden">
         <svg
           id="wave"
@@ -121,18 +126,18 @@ const ProductPage = () => {
       {/* Product */}
       <div className="  mx-[20px] xs:mx-[30px] xl:mx-[70px]">
         <div className=" flex justify-between mb-5">
+          <h1 className="text-3xl">New Arrivals </h1>
+          <Space>
+            <div className="text-md lg:text-2xl w-full hidden sm:block">
+              Total Products: {totalRecord}
+            </div>
 
-        <h1>New Arrivals </h1>
-        <Space>
-              <div className="text-md w-full lg:text-2xl ">
-                Total Products: {totalRecord}
-              </div>
-
+            <div className="flex flex-col md:flex-row gap-3">
               <Input
                 value={txtSearch}
                 placeholder="Search by name, id, product_id,"
                 allowClear={true}
-                className="w-96 "
+                className="w-full "
                 onChange={(event) => {
                   setObjFilter({
                     ...objFilter,
@@ -153,7 +158,7 @@ const ProductPage = () => {
                   });
                 }}
               >
-                {category?.map((item, index) => {
+                {categories?.map((item, index) => {
                   return (
                     <Option key={index} value={item.id}>
                       {item.name}
@@ -161,7 +166,9 @@ const ProductPage = () => {
                   );
                 })}
               </Select>
-              {/* <Select
+            </div>
+
+            {/* <Select
                 value={productStatus}
                 placeholder="Status"
                 style={{ width: 120 }}
@@ -176,16 +183,17 @@ const ProductPage = () => {
                 <Option value={"1"}>Actived</Option>
                 <Option value={"0"}>Disabled</Option>
               </Select> */}
-            </Space>
+          </Space>
         </div>
         <div className="flex gap-5 flex-wrap justify-center">
-          {list.map((product) => (
+          {list.map((product, index) => (
             <Card
+              key={index}
               hoverable
               className="w-[150px] md:w-[200px] lg:w-[180px] xl:w-[280px]  overflow-hidden "
               cover={
                 <div
-                  className="h-72 overflow-hidden"
+                  className="h-52 md:h-60 lg:h-72 overflow-hidden"
                   onClick={() => viewDetail(product.id)}
                 >
                   <img
@@ -196,19 +204,28 @@ const ProductPage = () => {
                 </div>
               }
             >
-              <Button
+              <button
                 type="text"
                 shape="circle"
                 onClick={() => addToWishlist(product.id)}
-                icon={
-                  isProductInWishlist(product.id) ? (
-                    <HeartFilled style={{ fontSize: "24px", color: "green" }} />
-                  ) : (
-                    <HeartOutlined style={{ fontSize: "24px" }} />
-                  )
-                }
+                // icon={
+                //   isProductInWishlist(product.id) ? 
+                //     <HeartFilled style={{ fontSize: "24px", color: "green" }} />
+                //    : 
+                //     <HeartOutlined style={{ fontSize: "24px" }} />
+                
+                // }
                 className="absolute top-5 right-5 text-gray-600 font-bold hover:scale-110"
-              />
+              >
+                
+                {
+                  !isProductInWishlist ? 
+                    <HeartFilled style={{ fontSize: "24px", color: "green" }} />
+                   : 
+                    <HeartOutlined style={{ fontSize: "24px" }} />
+                
+                }
+              </button>
 
               <Meta title={product.name} description="www.instagram.com " />
               <div className="mt-2">
@@ -227,18 +244,18 @@ const ProductPage = () => {
         </div>
       </div>
       <Pagination
-  className="text-end m-10"
-  defaultCurrent={1}
-  total={totalRecord}
-  pageSize={2}
-  onChange={(page, pageSize) => {
-    setObjFilter({
-      ...objFilter,
-      page: page,
-    });
-  }}
-/>
-    </div>
+        className="text-end m-10"
+        defaultCurrent={1}
+        total={totalRecord}
+        pageSize={18}
+        onChange={(page, pageSize) => {
+          setObjFilter({
+            ...objFilter,
+            page: page,
+          });
+        }}
+      />
+    </MainPage>
   );
 };
 

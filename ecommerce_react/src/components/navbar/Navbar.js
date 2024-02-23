@@ -6,6 +6,7 @@ import {
   HomeOutlined,
   ShoppingOutlined,
   UserOutlined,
+  SearchOutlined 
 } from "@ant-design/icons";
 import { BiSupport } from "react-icons/bi";
 import { FiSend } from "react-icons/fi";
@@ -59,6 +60,16 @@ const Navbar = () => {
         <Link to={"contact"}>
           
           <FiSend />
+        </Link>
+      ),
+    },
+    {
+      label: "Search",
+      key: "Search",
+      icon: (
+        <Link to={"productSearch"}>
+          
+          <SearchOutlined />
         </Link>
       ),
     },

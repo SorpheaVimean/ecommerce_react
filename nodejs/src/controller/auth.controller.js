@@ -108,19 +108,18 @@ exports.userGuard = (parameter) => {
 // };
 
 exports.getPermissionUser = async (id) => {
-    var sql =
+  var sql =
     "SELECT" +
     " p.code" +
     " FROM employee e" +
-    " INNER JOIN role r ON e.role_id = r.id" + 
+    " INNER JOIN role r ON e.role_id = r.id" +
     " INNER JOIN role_permission rp ON r.id = rp.role_id" +
     " INNER JOIN permission p ON rp.permission_id = p.id" +
-    " WHERE e.id = ? "; 
+    " WHERE e.id = ? ";
   var list = await db.query(sql, [id]);
-  
+
   // Extracting permission codes from the result
-  var permissionCodes = list.map(item => item.code);
-  
+  var permissionCodes = list.map((item) => item.code);
+
   return permissionCodes;
 };
-

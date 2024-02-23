@@ -98,27 +98,27 @@ const Footer = () => {
               <p className="font-bold ">MENU</p>
               <ul className="">
                 <li className="mt-3">
-                  <Link to={"/"} className="hover:text-green-900 ">
+                  <Link to={"/"} className="hover:text-BgBtn ">
                     Home
                   </Link>
                 </li>
                 <li className="mt-3">
-                  <Link to={"Product"} className="hover:text-green-900 ">
+                  <Link to={"Product"} className="hover:text-BgBtn ">
                     Product
                   </Link>
                 </li>
                 <li className="mt-3">
-                  <Link to={"about"} className="hover:text-green-900 ">
+                  <Link to={"about"} className="hover:text-BgBtn ">
                     About
                   </Link>
                 </li>
                 <li className="mt-3">
-                  <Link to={"support"} className="hover:text-green-900 ">
+                  <Link to={"support"} className="hover:text-BgBtn ">
                     support
                   </Link>
                 </li>
                 <li className="mt-3">
-                  <Link to={"contact"} className="hover:text-green-900 ">
+                  <Link to={"contact"} className="hover:text-BgBtn ">
                     contact
                   </Link>
                 </li>
@@ -133,22 +133,22 @@ const Footer = () => {
                   Useful links
                 </h6>
                 <p class="mb-4">
-                  <a href="#!" class="text-white hover:text-green-900 ">
+                  <a href="#!" class="text-white hover:text-BgBtn ">
                     Pricing
                   </a>
                 </p>
                 <p class="mb-4">
-                  <a href="#!" class="text-white hover:text-green-900 ">
+                  <a href="#!" class="text-white hover:text-BgBtn ">
                     Settings
                   </a>
                 </p>
                 <p class="mb-4">
-                  <a href="#!" class="text-white hover:text-green-900 ">
+                  <a href="#!" class="text-white hover:text-BgBtn ">
                     Orders
                   </a>
                 </p>
                 <p>
-                  <a href="#!" class="text-white hover:text-green-900  ">
+                  <a href="#!" class="text-white hover:text-BgBtn  ">
                     Help
                   </a>
                 </p>

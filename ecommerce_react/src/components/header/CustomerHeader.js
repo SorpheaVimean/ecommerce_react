@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../img/logo.png";
-import Search from "antd/es/input/Search";
 import {
-  AudioOutlined,
   UserOutlined,
   LogoutOutlined,
   HeartOutlined,
@@ -15,9 +13,11 @@ import { Header } from "antd/es/layout/layout";
 import { request } from "../../share/request";
 
 const CustomerHeader = () => {
+
   const [form] = Form.useForm();
   const user = getUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const navigate = useNavigate();
   const onLinkPage = (routeName) => {
     // use for link to other page
@@ -27,8 +27,9 @@ const CustomerHeader = () => {
   //Logout
   const onLogOut = () => {
     logout();
+    window.location.href = "/login";
   };
-  const onSearch = (value) => console.log(value);
+
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -85,6 +86,8 @@ const CustomerHeader = () => {
       onClick: onLogOut,
     },
   ];
+
+
   return (
     <div className="bg-Backproducts h-18 lg:h-18 flex items-center ">
       <div className="flex justify-between items-center w-full mx-[20px] xs:mx-[30px] xl:mx-[70px] ">
@@ -98,13 +101,7 @@ const CustomerHeader = () => {
             />
           </Link>
         </div>
-        <Search
-          placeholder="input search text"
-          allowClear
-          onSearch={onSearch}
-          className="w-40 xs:w-96 "
-        />
-
+      
         {!isLogin() ? (
           <Space>
             <Link to={"login"}>
@@ -120,7 +117,7 @@ const CustomerHeader = () => {
             </Link>
           </Space>
         ) : (
-          <Header className="  p-0 bg-transparent flex justify-between items-center px-10 sticky top-0 z-10 ">
+          <Header className="  p-0 bg-transparent flex justify-between items-center px-10 sticky top-0  ">
             <div className="flex justify-center items-center gap-5">
               <Space size={"large"}>
                 <Link to={"wishlist"}>

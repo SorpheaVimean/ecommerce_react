@@ -6,7 +6,7 @@ const AboutPage = () => {
   return (
     <div>
       <h1
-        className="text-8xl font-extrabold bg-cover bg-center relative h-40 flex justify-center items-center "
+        className="text-5xl md:text-8xl font-extrabold bg-cover bg-center relative h-28 md:h-40 flex justify-center items-center "
         style={{ backgroundImage: `url(${logos})` }}
       >
         ABOUT US
@@ -17,7 +17,7 @@ const AboutPage = () => {
             <img src={about} alt="logo" className="object-contain" />
           </div>
           <div className="">
-            <p className="text-6xl mb-5"> Welcome to our e-commerce haven,</p>
+            <p className="text-4xl md:text-6xl mb-5"> Welcome to our e-commerce have</p>
             <p className="text-justify text-lg  ">
               {" "}
               where cutting-edge technology meets your computing needs

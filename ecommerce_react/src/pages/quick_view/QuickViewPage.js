@@ -11,13 +11,15 @@ import "@splidejs/splide/dist/css/splide.min.css";
 import "@splidejs/react-splide/css/skyblue";
 // import "@splidejs/react-splide/css/sea-green";
 import { request } from "../../share/request";
-import { configImage, getUser } from "../../share/help";
+import { configImage, formatPrice, getUser, isLogin } from "../../share/help";
+import MainPage from "../../components/layout/MainPage";
 const QuickViewPage = () => {
   const user = getUser();
   const { productId } = useParams();
   const [list, setList] = useState(null);
   const [slider, setSlider] = useState(null);
   const [wishlistIds, setWishlistIds] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     getList();
 
@@ -26,8 +28,9 @@ const QuickViewPage = () => {
 
   const getList = async () => {
     var param = productId;
+    setLoading(true);
     const res = await request("product/" + param, "get");
-    console.log(res);
+    setLoading(false);
     if (res) {
       setList(res.list);
       
@@ -38,32 +41,48 @@ const QuickViewPage = () => {
     setSlider(image);
   };
   const addToCart = async (productId) => {
+    if(!isLogin()){
+      window.location.href = "/login";
+    }else{
     const params = {
       customer_id: user.id,
       product_id: productId,
     };
+    setLoading(true);
 
     const res = await request("cart", "POST", params);
+      setLoading(false);
     if (res) {
       message.success(res.message);
     }
+  }
   };
 
   const addToWishlist = async (productId) => {
-    const params = {
-      customer_id: user.id,
-      product_id: productId,
-    };
-    const res = await request("wishlist", "POST", params);
-    if (res) {
-      message.success(res.message);
-      setWishlistIds((prevIds) => [...prevIds, productId]);
+   
+    if(!isLogin()){
+      window.location.href = "/login";
+    }else{
+      const params = {
+        customer_id: user.id,
+        product_id: productId,
+      };
+    setLoading(true);
+
+      const res = await request("wishlist", "POST", params);
+    setLoading(false);
+
+      if (res) {
+        message.success(res.message);
+        setWishlistIds((prevIds) => [...prevIds, productId]);
+      }
     }
+    
   };
   // const splideRef = useRef(null);
   return (
-    <div className="  mx-[20px] xs:mx-[30px] xl:mx-[70px]">
-      <div className=" grid grid-cols-1 md:grid-cols-2 my-24 mx-0 ">
+    <MainPage loading={loading} className="  mx-[20px] xs:mx-[30px] xl:mx-[70px]">
+      <div className=" grid grid-cols-1 md:grid-cols-2 my-24 mx-0 gap-4 ">
       {list && list.map((product) => (
          <div className="flex justify-start items-center  flex-col gap-5">
           
@@ -91,13 +110,16 @@ const QuickViewPage = () => {
               },
             }}
           >
-            <SplideSlide >
+            <div className="bg-Backproducts w-96 rounded-xl  ">
+<SplideSlide >
                     <img
                       src={slider === null ? configImage.image_path + product.image_1: slider}
                       alt=""
-                      className="w-full h-full rounded-lg object-cover transition duration-300 ease-in-out"
+                      className="  transition duration-300 ease-in-out"
                     />
             </SplideSlide>
+            </div>
+            
           </Splide>
           <Splide
             options={{
@@ -128,11 +150,12 @@ const QuickViewPage = () => {
           
           {Object.keys(product).map((key) =>
         key.includes("image_") ? (
-          <SplideSlide key={key}>
+          
+          <SplideSlide key={key} className="bg-Backproducts rounded-xl">
             <img
               src={configImage.image_path + product[key]}
               alt=""
-              className="w-full h-full rounded-lg object-cover transition duration-300 ease-in-out"
+              className="w-full h-full rounded-lg object-cover transition-opacity duration-500 ease-in-out"
               onClick={() => onClickChange(configImage.image_path + product[key])}
             />
           </SplideSlide>
@@ -144,34 +167,34 @@ const QuickViewPage = () => {
        
         <div className="  flex justify-start items-start flex-col gap-5">
           {list && list.map((data, i) => (
-            <div>
+            <div key={i}>
 
               <h1 className="text-4xl font-bold">{data.name}</h1>
-              <h3 className="text-2xl mb-1">Category : {data.CName}</h3>
+              <h3 className="text-2xl mb-1">Category : <span className="text-blue-600">{data.CName}</span></h3>
           <h2 className="text-xl ">Product Detail</h2>
-          <p>
-           {data.description}
-          </p>
-          <p className="text-rose-700 text-5xl mb-5">$ {data.price}</p>
+          <p className="list-disc" dangerouslySetInnerHTML={{ __html: data.description }}></p>
+          <p className="text-rose-700 text-5xl mb-5">$ {formatPrice(data.price)}</p>
+
             </div>
           ))}
          
         
           <div className="flex justify-center items-center gap-5">
-            <button class="w-40 h-12 bg-BgBtn cursor-pointer rounded-3xl border-2 border-BgBtnHover shadow-[inset_0px_-2px_0px_1px_#01cc7a] group hover:bg-BgBtnHover transition duration-300 ease-in-out"  onClick={() => addToCart(productId)}  >
-              <span class="font-medium text-[#333] group-hover:text-white">
-                ADD TO CART
-              </span>
-            </button>
-            <button class="w-40 h-12 bg-white cursor-pointer rounded-3xl border-2 border-BgBtnHover shadow-[inset_0px_-2px_0px_1px_#01cc7a] group hover:bg-BgBtnHover transition duration-300 ease-in-out" onClick={() => addToWishlist(productId)}>
+             <button class="w-40 h-12 bg-white cursor-pointer rounded-3xl border-2 border-BgBtnHover shadow-[inset_0px_-2px_0px_1px_#01cc7a] group hover:bg-BgBtnHover transition duration-300 ease-in-out" onClick={() => addToWishlist(productId)} loading={loading}>
               <span class="font-medium text-[#333] group-hover:text-white">
                 ADD TO WHILIST
               </span>
             </button>
+            <button class="w-40 h-12 bg-BgBtn cursor-pointer rounded-3xl border-2 border-BgBtnHover shadow-[inset_0px_-2px_0px_1px_#01cc7a] group hover:bg-BgBtnHover transition duration-300 ease-in-out"  onClick={() => addToCart(productId)} loading={loading} >
+              <span class="font-medium text-white group-hover:text-white">
+                ADD TO CART
+              </span>
+            </button>
+           
           </div>
         </div>
       </div>
-    </div>
+    </MainPage>
   );
 };
 
