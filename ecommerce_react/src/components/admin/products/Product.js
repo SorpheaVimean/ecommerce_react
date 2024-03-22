@@ -488,16 +488,16 @@ const Product = () => {
       render: (value, item, index) => {
         return (
           <div key={index}>
-            {isPersmission("employee.Update") && (
+            {isPersmission("product.Update") && (
               <EditOutlined
                 className="mr-10 text-blue-600 text-xl hover:bg-gray-300 p-2 rounded-2xl transition duration-500"
                 onClick={() => onClickEdit(item)}
               />
             )}
-            {isPersmission("employee.Delete") && (
+            {isPersmission("product.Delete") && (
               <Popconfirm
-                title="Delete Employee"
-                description="Are you sure to delete this employee?"
+                title="Delete product"
+                description="Are you sure to delete this product?"
                 onConfirm={() => onDelete(item)}
                 okText="Yes"
                 cancelText="No"

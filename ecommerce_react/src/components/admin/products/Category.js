@@ -247,7 +247,7 @@ const Category = () => {
             </Space>
           </div>
           <div className="">
-            {isPersmission("customer.Create") && (
+            {isPersmission("category.Create") && (
               <Btncompo
               type="primary"
               label="Create Category"

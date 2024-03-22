@@ -307,8 +307,8 @@ const OrderPage = () => {
             }}
             description={
               <span>
-                No Wishlist{" "}
-                <Link to={"/product"} className="text-blue-400">
+                No Order{" "}
+                <Link to={"/product"} className="text-blue-400 hover:underline">
                   Continue Shopping
                 </Link>
               </span>

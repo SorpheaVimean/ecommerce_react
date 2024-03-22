@@ -229,7 +229,7 @@ const CustomerAddress = () => {
             </Space>
           </div>
           <div className="">
-            {isPersmission("customer.Create") && (
+            {isPersmission("customer_address.Create") && (
               <Btncompo
               type="primary"
               label="Create customerAddress"

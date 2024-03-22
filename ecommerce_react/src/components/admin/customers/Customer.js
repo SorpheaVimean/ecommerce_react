@@ -300,40 +300,39 @@ const Customer = () => {
       dataIndex: "create_at",
       render: (value) => formatDateClient(value),
     },
-    {
-      key: "Actoin",
-      title: "Action",
-
-      render: (value, item, index) => {
-        return (
-          <div key={index}>
-            {isPersmission("employee.Update") && (
-              <EditOutlined
-                className="mr-10 text-blue-600 text-xl hover:bg-gray-300 p-2 rounded-2xl transition duration-500"
-                onClick={() => onClickEdit(item)}
-              />
-            )}
-            {isPersmission("employee.Delete") && (
-              <Popconfirm
-                title="Delete Employee"
-                description="Are you sure to delete this employee?"
-                onConfirm={() => onDelete(item)}
-                okText="Yes"
-                cancelText="No"
-                okButtonProps={{
-                  style: {
-                    backgroundColor: "blue",
-                    hover: { backgroundColor: "green" },
-                  },
-                }}
-              >
-                <DeleteOutlined className=" text-red-500 text-xl  hover:bg-gray-300 p-2 rounded-2xl transition duration-500" />
-              </Popconfirm>
-            )}
-          </div>
-        );
-      },
-    },
+      {
+        key: "Action",
+        title: "Action",
+        render: (value, item, index) => {
+          return (
+            <div key={index}>
+              {isPersmission("employee.Update") && (
+                <EditOutlined
+                  className="mr-10 text-blue-600 text-xl hover:bg-gray-300 p-2 rounded-2xl transition duration-500"
+                  onClick={() => onClickEdit(item)}
+                />
+              )}
+              {isPersmission("employee.Delete") && (
+                <Popconfirm
+                  title="Delete Employee"
+                  description="Are you sure to delete this employee?"
+                  onConfirm={() => onDelete(item)}
+                  okText="Yes"
+                  cancelText="No"
+                  okButtonProps={{
+                    style: {
+                      backgroundColor: "blue",
+                      hover: { backgroundColor: "green" },
+                    },
+                  }}
+                >
+                  <DeleteOutlined className=" text-red-500 text-xl  hover:bg-gray-300 p-2 rounded-2xl transition duration-500" />
+                </Popconfirm>
+              )}
+            </div>
+          );
+        },
+      }
   ];
   return (
     <MainPage loading={loading}>
@@ -392,7 +391,7 @@ const Customer = () => {
             </Space>
           </div>
           <div className="">
-            {isPersmission("customer.Create") && (
+            {isPersmission("employee.Create") && (
               <Btncompo
               type="primary"
               label="Create Customer"

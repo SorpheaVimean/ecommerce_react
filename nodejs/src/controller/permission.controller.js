@@ -53,6 +53,24 @@ const getAll = async (req, res) => {
   });
 }
 };
+const getAllWithoutPermission = async (req, res) => {
+  try{
+ 
+
+  var select = "SELECT * FROM permission";
+  
+  const list = await db.query(select);
+  res.json({
+    list: list,
+  });
+} catch (e) {
+  console.log(e);
+  res.status(500).send({
+    message: e.message,
+    error: e,
+  });
+}
+};
 const create = async (req, res) => {
   const { name, code, group } = req.body;
   const sqlCheckName = await db.query(
@@ -114,6 +132,7 @@ const remove = async (req, res) => {
 
 module.exports = {
   getAll,
+  getAllWithoutPermission,
   create,
   update,
   remove,

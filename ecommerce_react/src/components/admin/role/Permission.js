@@ -216,7 +216,7 @@ const Permission = () => {
               <Select
                 value={group}
                 placeholder="Group"
-                style={{ width: 120 }}
+                style={{ width: 170 }}
                 allowClear
                 onChange={(value) => {
                   setObjFilter({

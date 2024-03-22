@@ -92,8 +92,7 @@ const ProductPage = () => {
     }
   };
   const isProductInWishlist = (productId) => {
- return wishlistIds.includes(productId);
-    // console.log( "ProductIDDDDDDDDDDDDD: ", productId);
+    return wishlistIds.some(item => item.product_id === productId);
   };
   return (
     <MainPage loading={loading}>
@@ -208,13 +207,13 @@ const ProductPage = () => {
                 type="text"
                 shape="circle"
                 onClick={() => addToWishlist(product.id)}
-                // icon={
-                //   isProductInWishlist(product.id) ? 
-                //     <HeartFilled style={{ fontSize: "24px", color: "green" }} />
-                //    : 
-                //     <HeartOutlined style={{ fontSize: "24px" }} />
+                icon={
+                  isProductInWishlist(product.id) ? 
+                    <HeartFilled style={{ fontSize: "24px", color: "green" }} />
+                   : 
+                    <HeartOutlined style={{ fontSize: "24px" }} />
                 
-                // }
+                }
                 className="absolute top-5 right-5 text-gray-600 font-bold hover:scale-110"
               >
                 

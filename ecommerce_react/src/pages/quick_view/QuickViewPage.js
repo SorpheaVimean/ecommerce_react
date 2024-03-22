@@ -82,7 +82,7 @@ const QuickViewPage = () => {
   // const splideRef = useRef(null);
   return (
     <MainPage loading={loading} className="  mx-[20px] xs:mx-[30px] xl:mx-[70px]">
-      <div className=" grid grid-cols-1 md:grid-cols-2 my-24 mx-0 gap-4 ">
+      <div className=" grid grid-cols-1 md:grid-cols-2 my-24 mx-5 gap-4 ">
       {list && list.map((product) => (
          <div className="flex justify-start items-center  flex-col gap-5">
           
@@ -110,15 +110,14 @@ const QuickViewPage = () => {
               },
             }}
           >
-            <div className="bg-Backproducts w-96 rounded-xl  ">
-<SplideSlide >
+      
+            <SplideSlide className="bg-Backproducts rounded-xl">
                     <img
                       src={slider === null ? configImage.image_path + product.image_1: slider}
                       alt=""
-                      className="  transition duration-300 ease-in-out"
+                      className="w-full h-full rounded-lg object-cover transition-opacity duration-500 ease-in-out"
                     />
             </SplideSlide>
-            </div>
             
           </Splide>
           <Splide

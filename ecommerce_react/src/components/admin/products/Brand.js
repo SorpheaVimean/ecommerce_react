@@ -247,7 +247,7 @@ const Brand = () => {
             </Space>
           </div>
           <div className="">
-            {isPersmission("customer.Create") && (
+            {isPersmission("brand.Create") && (
               <Btncompo
               type="primary"
               label="Create Brand"

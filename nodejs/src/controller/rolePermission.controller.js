@@ -109,20 +109,6 @@ const create = async (req, res) => {
   });
 };
 
-const update = async (req, res) => {
-  const { id, role_id, message } = req.body;
-  const sqlUpdate = await db.query(
-    "UPDATE role_permission SET role_id = ?, message = ? WHERE id = ?",
-    [role_id, message, , id]
-  );
-  res.json({
-    message:
-      sqlUpdate.affectedRows != 0
-        ? "role_permission updated successfully!"
-        : "role_permission not found!",
-    data: sqlUpdate,
-  });
-};
 
 const remove = async (req, res) => {
   const { id } = req.body;
@@ -140,6 +126,5 @@ const remove = async (req, res) => {
 module.exports = {
   getAll,
   create,
-  update,
   remove,
 };

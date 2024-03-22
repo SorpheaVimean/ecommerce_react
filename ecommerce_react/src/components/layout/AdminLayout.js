@@ -65,15 +65,17 @@ const AdminLayout = () => {
       icon: <VideoCameraOutlined />,
       label: "Employee",
       onClick: () => onLinkPage("employee"),
-    } : {}, // If not granted, include null
+    } : "null", // If not granted, include null
     {
       key: "Customer",
       icon: <UploadOutlined />,
       label: "Customers",
       
       children: [
-        { key: "3", label: "List Customers", onClick: () => onLinkPage("customer")},
-        { key: "4", label: "Customer Address", onClick: () => onLinkPage("customerAddress")},
+        isPersmission("customer.Read") ?
+        { key: "3", label: "List Customers", onClick: () => onLinkPage("customer") } : "null",
+        isPersmission("customer.Read") ?
+        { key: "4", label: "Customer Address", onClick: () => onLinkPage("customerAddress")}: "null",
       ]
     },
     {
@@ -81,9 +83,12 @@ const AdminLayout = () => {
       icon: <UploadOutlined />,
       label: "Products", 
       children: [
-        { key: "5", label: "List Products",  onClick: () => onLinkPage("product"),},
-        { key: "6", label: "Brands", onClick: () => onLinkPage("brand")},
-        { key: "7", label: "Categories", onClick: () => onLinkPage("category")},
+        isPersmission("product.Read") ?
+        { key: "5", label: "List Products",  onClick: () => onLinkPage("product"),}: "null",
+        isPersmission("brand.Read") ?
+        { key: "6", label: "Brands", onClick: () => onLinkPage("brand")}: "null",
+        isPersmission("category.Read") ?
+        { key: "7", label: "Categories", onClick: () => onLinkPage("category")}: "null",
       ]
     },
     {
@@ -91,9 +96,12 @@ const AdminLayout = () => {
       icon: <UserOutlined />,
       label: "Role",
       children: [
-        { key: "8", label: "List Roles", onClick: () => onLinkPage("role") },
-        { key: "9", label: "Role Permission", onClick: () => onLinkPage("rolePermission") },
-        { key: "10", label: "Permission", onClick: () => onLinkPage("permission") },
+        isPersmission("role.Read") ?
+        { key: "8", label: "List Roles", onClick: () => onLinkPage("role") }: "null",
+        isPersmission("role_permission.Read") ?
+        { key: "9", label: "Role Permission", onClick: () => onLinkPage("rolePermission") }: "null",
+        isPersmission("permission.Read") ?
+        { key: "10", label: "Permission", onClick: () => onLinkPage("permission") }: "null",
       ],
     },
     {
@@ -101,14 +109,17 @@ const AdminLayout = () => {
       icon: <UserOutlined />,
       label: "Orders",
       children: [
-        { key: "11", label: "List Orders", onClick: () => onLinkPage("order") },
-        { key: "12", label: "Order Status", onClick: () => onLinkPage("orderStatus") },
-        { key: "13", label: "Payment Menthod", onClick: () => onLinkPage("paymentmethod") },
+        isPersmission("order.Read") ?
+        { key: "11", label: "List Orders", onClick: () => onLinkPage("order") }: "null",
+        isPersmission("orderstatus.Read") ?
+        { key: "12", label: "Order Status", onClick: () => onLinkPage("orderStatus") }: "null",
+        isPersmission("payment_method.Read") ?
+        { key: "13", label: "Payment Menthod", onClick: () => onLinkPage("paymentmethod") }: "null",
       ],
     },
   ];
 // Filter out null or empty objects
-const filteredSidebar = sidebar.filter(item => item !== null && Object.keys(item).length !== 0);
+
   const [title, setTitle] = useState(sidebar[0].label);
 
   //Logout
@@ -183,28 +194,28 @@ const filteredSidebar = sidebar.filter(item => item !== null && Object.keys(item
     },
   ];
 // change title
-  const handleChangeTitle = (e) => {
-    const menuItem = sidebar.find((item) => {
-      if (item.key === e.key) {
-        return true;
-      }
-      if (item.children) {
-        return item.children.some((child) => child.key === e.key);
-      }
-      return false;
-    });
-  
-    if (menuItem) {
-      if (menuItem.children) {
-        const childItem = menuItem.children.find((child) => child.key === e.key);
-        if (childItem) {
-          setTitle(childItem.label);
-          return;
-        }
-      }
-      setTitle(menuItem.label);
+const handleChangeTitle = (e) => {
+  const menuItem = sidebar.find((item) => {
+    if (item.key === e.key) {
+      return true;
     }
-  };
+    if (item.children) {
+      return item.children.some((child) => child.key === e.key);
+    }
+    return false;
+  });
+
+  if (menuItem) {
+    if (menuItem.children) {
+      const childItem = menuItem.children.find((child) => child.key === e.key);
+      if (childItem) {
+        setTitle(childItem.label);
+        return;
+      }
+    }
+    setTitle(menuItem.label);
+  }
+};
   
 
 

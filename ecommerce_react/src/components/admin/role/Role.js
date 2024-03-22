@@ -247,7 +247,7 @@ const Role = () => {
             </Space>
           </div>
           <div className="">
-            {isPersmission("customer.Create") && (
+            {isPersmission("role.Create") && (
               <Btncompo
               type="primary"
               label="Create role"

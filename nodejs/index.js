@@ -7,7 +7,14 @@ const app = express();
 
 // need to allow cors origins
 app.use(cors({ origin: "*" }));
-
+// app.use(
+//   cors({
+//     origin: "*",
+//     methods: "GET, HEAD, PUT, PATCH, POST, DELETE ",
+//     perflightContinue: false,
+//     optionsSuccessStatus: 204,
+//   })
+// );
 // req.body ( get params json body)
 app.use(express.json());
 
@@ -47,6 +54,7 @@ wishlist(app);
 
 // defind port to server
 const port = 8081;
+// const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log("http:localhost:" + port);
 });

@@ -211,7 +211,7 @@ const OrderStatus = () => {
             </Space>
           </div>
           <div className="">
-            {isPersmission("customer.Create") && (
+            {isPersmission("orderstatus.Create") && (
               <Btncompo
               type="primary"
               label="Create orderStatus"
